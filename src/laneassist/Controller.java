@@ -3,6 +3,7 @@ package laneassist;
 import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.opencv.core.Mat;
@@ -49,26 +50,14 @@ public class Controller {
 	private Double curROIPaneWidth;
 	private Double curROIPaneHeight;
 
-	// a timer for acquiring the video stream
 	private ScheduledExecutorService timer;
-	// the OpenCV object that realizes the video capture
+	private ScheduledFuture<?> future;
 	private VideoCapture capture = new VideoCapture();
 	
 	Runnable frameGrabber;
 
-	public void InitializeGUI() {
-		hPaddingMax = ROIPane.getWidth() - ROIPane.getWidth();
-		vPaddingMax = ROIPane.getHeight() - ROIPane.getHeight();
-		Double padding = hPaddingMax / 2;
-		ROIPanePadding = ROIPane.getPadding();
-		ROIPane.setPadding(new Insets(ROIPanePadding.getTop(), ROIPanePadding.getRight(), 0.0, padding));
-		curROIPaneWidth = ROIPane.getWidth();
-		curROIPaneHeight = ROIPane.getHeight();
-	}
-	
-
 	@FXML
-	protected void ActionMenuOpen() {
+	private void actionMenuOpen() {
 
 		String userDir = System.getProperty("user.home");
 		FileChooser fileChooser = new FileChooser();
@@ -77,6 +66,10 @@ public class Controller {
 		fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Video Files", "*.avi", "*.mp4"));
 		File video = fileChooser.showOpenDialog(null);
 
+		if (capture.isOpened()) {
+			setClosed();
+		}
+		
 		capture.open(video.getAbsolutePath());
 
 		if (capture.isOpened()) {
@@ -92,11 +85,77 @@ public class Controller {
 				}
 			};
 
-			this.timer = Executors.newSingleThreadScheduledExecutor();
-			this.timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
+			timer = Executors.newSingleThreadScheduledExecutor();
+			future = timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
 
 		} else {
 			System.err.println("Impossibile aprire il video");
+		}
+	}
+	
+	@FXML
+	private void actionMenuClose() {
+		setClosed();
+	}
+
+	@FXML
+	private void dragROIWidth() {
+		Double width = ROI_WIDTH + (ROIWidth.getValue() * (ROIPane.getWidth() - ROI_WIDTH)) / 100;
+		if (width >= curROIPaneWidth) {
+			width = curROIPaneWidth;
+			ROIHorizontalPosition.setDisable(true);
+		} else {
+			ROIHorizontalPosition.setDisable(false);
+		}
+		ROI.setWidth(width);
+
+		hPaddingMax = ROIPane.getWidth() - ROI.getWidth();
+
+		ROIPanePadding = ROIPane.getPadding();
+		Double padding = ROIHorizontalPosition.getValue() * hPaddingMax / 100;
+		ROIPane.setPadding(
+				new Insets(ROIPanePadding.getTop(), ROIPanePadding.getRight(), ROIPanePadding.getBottom(), padding));
+	}
+
+	@FXML
+	private void dragROIHeight() {
+		Double height = ROI_HEIGHT + (ROIHeight.getValue() * (ROIPane.getHeight() - ROI_HEIGHT)) / 100;
+		if (height >= curROIPaneHeight) {
+			height = curROIPaneHeight;
+			ROIVerticalPosition.setDisable(true);
+		} else
+			ROIVerticalPosition.setDisable(false);
+		ROI.setHeight(height);
+
+		vPaddingMax = ROIPane.getHeight() - ROI.getHeight();
+
+		ROIPanePadding = ROIPane.getPadding();
+		Double padding = ROIVerticalPosition.getValue() * vPaddingMax / 100;
+		ROIPane.setPadding(
+				new Insets(ROIPanePadding.getTop(), ROIPanePadding.getRight(), padding, ROIPanePadding.getLeft()));
+	}
+
+	@FXML
+	private void dragROIHorizontalPosition() {
+		Double padding = ROIHorizontalPosition.getValue() * hPaddingMax / 100;
+		ROIPanePadding = ROIPane.getPadding();
+		ROIPane.setPadding(
+				new Insets(ROIPanePadding.getTop(), ROIPanePadding.getRight(), ROIPanePadding.getBottom(), padding));
+	}
+
+	@FXML
+	private void dragROIVerticalPosition() {
+		Double padding = ROIVerticalPosition.getValue() * vPaddingMax / 100;
+		ROIPanePadding = ROIPane.getPadding();
+		ROIPane.setPadding(
+				new Insets(ROIPanePadding.getTop(), ROIPanePadding.getRight(), padding, ROIPanePadding.getLeft()));
+	}
+
+	@FXML
+	private void dragVideoSpeed() {
+		if(!future.isCancelled()) {
+			future.cancel(false);
+			future = timer.scheduleAtFixedRate(frameGrabber, 0, (long) (33 / videoSpeed.getValue()), TimeUnit.MILLISECONDS);
 		}
 	}
 	
@@ -121,67 +180,19 @@ public class Controller {
 		return frame;
 	}
 
-	@FXML
-	void DragROIWidth() {
-		Double width = ROI_WIDTH + (ROIWidth.getValue() * (ROIPane.getWidth() - ROI_WIDTH)) / 100;
-		if (width >= curROIPaneWidth) {
-			width = curROIPaneWidth;
-			ROIHorizontalPosition.setDisable(true);
-		} else {
-			ROIHorizontalPosition.setDisable(false);
-		}
-		ROI.setWidth(width);
-
-		hPaddingMax = ROIPane.getWidth() - ROI.getWidth();
-
-		ROIPanePadding = ROIPane.getPadding();
-		Double padding = ROIHorizontalPosition.getValue() * hPaddingMax / 100;
-		ROIPane.setPadding(
-				new Insets(ROIPanePadding.getTop(), ROIPanePadding.getRight(), ROIPanePadding.getBottom(), padding));
-	}
-
-	@FXML
-	void DragROIHeight() {
-		Double height = ROI_HEIGHT + (ROIHeight.getValue() * (ROIPane.getHeight() - ROI_HEIGHT)) / 100;
-		if (height >= curROIPaneHeight) {
-			height = curROIPaneHeight;
-			ROIVerticalPosition.setDisable(true);
-		} else
-			ROIVerticalPosition.setDisable(false);
-		ROI.setHeight(height);
-
-		vPaddingMax = ROIPane.getHeight() - ROI.getHeight();
-
-		ROIPanePadding = ROIPane.getPadding();
-		Double padding = ROIVerticalPosition.getValue() * vPaddingMax / 100;
-		ROIPane.setPadding(
-				new Insets(ROIPanePadding.getTop(), ROIPanePadding.getRight(), padding, ROIPanePadding.getLeft()));
-	}
-
-	@FXML
-	void DragROIHorizontalPosition() {
-		Double padding = ROIHorizontalPosition.getValue() * hPaddingMax / 100;
-		ROIPanePadding = ROIPane.getPadding();
-		ROIPane.setPadding(
-				new Insets(ROIPanePadding.getTop(), ROIPanePadding.getRight(), ROIPanePadding.getBottom(), padding));
-	}
-
-	@FXML
-	void DragROIVerticalPosition() {
-		Double padding = ROIVerticalPosition.getValue() * vPaddingMax / 100;
-		ROIPanePadding = ROIPane.getPadding();
-		ROIPane.setPadding(
-				new Insets(ROIPanePadding.getTop(), ROIPanePadding.getRight(), padding, ROIPanePadding.getLeft()));
-	}
-
-	@FXML
-	void DragVideoSpeed() {
-
-	}
-
 	private void updateImageView(ImageView view, Image image) {
 		Utils.onFXThread(view.imageProperty(), image);
 	}
+	
+	protected void initializeGUI() {
+		hPaddingMax = ROIPane.getWidth() - ROIPane.getWidth();
+		vPaddingMax = ROIPane.getHeight() - ROIPane.getHeight();
+		Double padding = hPaddingMax / 2;
+		ROIPanePadding = ROIPane.getPadding();
+		ROIPane.setPadding(new Insets(ROIPanePadding.getTop(), ROIPanePadding.getRight(), 0.0, padding));
+		curROIPaneWidth = ROIPane.getWidth();
+		curROIPaneHeight = ROIPane.getHeight();
+	}	
 
 	protected void setClosed() {
 		if (this.timer != null && !this.timer.isShutdown()) {
@@ -192,8 +203,10 @@ public class Controller {
 				System.err.println("Errore durante la chiusura");
 			}
 		}
-		if (this.capture.isOpened()) {
-			this.capture.release();
+		if (capture != null && capture.isOpened()) {
+			capture.release();
+			updateImageView(currentFrame, null);
 		}
+		
 	}
 }

@@ -37,7 +37,7 @@ public class Main extends Application {
 			primaryStage.show();
 			
 			Controller controller = loader.getController();
-			controller.InitializeGUI();
+			controller.initializeGUI();
 			
 			// set the proper behavior on closing the application
 			primaryStage.setOnCloseRequest((new EventHandler<WindowEvent>() {

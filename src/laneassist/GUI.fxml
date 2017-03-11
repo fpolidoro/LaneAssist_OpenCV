@@ -24,14 +24,15 @@
 			<menus>
 				<Menu mnemonicParsing="false" text="File">
 					<items>
-						<MenuItem fx:id="MenuItemOpen" mnemonicParsing="false"
-							onAction="#ActionMenuOpen" text="Open">
+						<MenuItem fx:id="menuItemOpen" mnemonicParsing="false"
+							onAction="#actionMenuOpen" text="Open">
 							<accelerator>
 								<KeyCodeCombination alt="UP" code="O"
 									control="ANY" meta="UP" shift="UP" shortcut="UP" />
 							</accelerator>
 						</MenuItem>
-						<MenuItem mnemonicParsing="false" text="Close">
+						<MenuItem fx:id="menuItemClose" mnemonicParsing="false" 
+							onAction="#actionMenuClose" text="Close">
 							<accelerator>
 								<KeyCodeCombination alt="ANY" code="F4"
 									control="UP" meta="UP" shift="UP" shortcut="UP" />
@@ -48,7 +49,7 @@
 		</MenuBar>
 	</top>
 	<right>
-		<GridPane fx:id="GridPane" minWidth="200.0"
+		<GridPane fx:id="gridPane" minWidth="200.0"
 			BorderPane.alignment="CENTER">
 			<columnConstraints>
 				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
@@ -85,9 +86,9 @@
 								<VBox minWidth="130.0" BorderPane.alignment="CENTER">
 									<children>
 										<Slider fx:id="ROIWidth" minWidth="130.0"
-											onMouseDragged="#DragROIWidth" />
+											onMouseDragged="#dragROIWidth" />
 										<Slider fx:id="ROIHorizontalPosition" minWidth="130.0"
-											onMouseDragged="#DragROIHorizontalPosition" value="50.0" />
+											onMouseDragged="#dragROIHorizontalPosition" value="50.0" />
 									</children>
 									<padding>
 										<Insets top="5.0" />
@@ -100,10 +101,10 @@
 							<right>
 								<HBox BorderPane.alignment="CENTER">
 									<children>
-										<Slider fx:id="ROIHeight" onMouseDragged="#DragROIHeight"
+										<Slider fx:id="ROIHeight" onMouseDragged="#dragROIHeight"
 											orientation="VERTICAL" />
 										<Slider fx:id="ROIVerticalPosition" minHeight="73.0"
-											onMouseDragged="#DragROIVerticalPosition" orientation="VERTICAL" />
+											onMouseDragged="#dragROIVerticalPosition" orientation="VERTICAL" />
 									</children>
 									<BorderPane.margin>
 										<Insets />
@@ -124,7 +125,7 @@
 					</top>
 					<center>
 						<Slider fx:id="videoSpeed" blockIncrement="0.5"
-							majorTickUnit="0.25" max="2.0" min="0.25" onMouseDragged="#DragVideoSpeed"
+							majorTickUnit="0.25" max="2.0" min="0.25" onMouseDragged="#dragVideoSpeed"
 							showTickLabels="true" showTickMarks="true" value="1.0"
 							BorderPane.alignment="CENTER" />
 					</center>
