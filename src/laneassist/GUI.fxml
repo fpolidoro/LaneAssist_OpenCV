@@ -18,24 +18,20 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
 
-<BorderPane xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="laneassist.Controller">
+<BorderPane xmlns="http://javafx.com/javafx/8.0.102" xmlns:fx="http://javafx.com/fxml/1" fx:controller="laneassist.Controller">
 	<top>
 		<MenuBar BorderPane.alignment="CENTER">
 			<menus>
 				<Menu mnemonicParsing="false" text="File">
 					<items>
-						<MenuItem fx:id="menuItemOpen" mnemonicParsing="false"
-							onAction="#actionMenuOpen" text="Open">
+						<MenuItem fx:id="menuItemOpen" mnemonicParsing="false" onAction="#actionMenuOpen" text="Open">
 							<accelerator>
-								<KeyCodeCombination alt="UP" code="O"
-									control="ANY" meta="UP" shift="UP" shortcut="UP" />
+								<KeyCodeCombination alt="UP" code="O" control="ANY" meta="UP" shift="UP" shortcut="UP" />
 							</accelerator>
 						</MenuItem>
-						<MenuItem fx:id="menuItemClose" mnemonicParsing="false" 
-							onAction="#actionMenuClose" text="Close">
+						<MenuItem fx:id="menuItemClose" mnemonicParsing="false" onAction="#actionMenuClose" text="Close">
 							<accelerator>
-								<KeyCodeCombination alt="ANY" code="F4"
-									control="UP" meta="UP" shift="UP" shortcut="UP" />
+								<KeyCodeCombination alt="ANY" code="F4" control="UP" meta="UP" shift="UP" shortcut="UP" />
 							</accelerator>
 						</MenuItem>
 					</items>
@@ -49,46 +45,34 @@
 		</MenuBar>
 	</top>
 	<right>
-		<GridPane fx:id="gridPane" minWidth="200.0"
-			BorderPane.alignment="CENTER">
+		<GridPane fx:id="gridPane" minWidth="200.0" BorderPane.alignment="CENTER">
 			<columnConstraints>
-				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
-					prefWidth="100.0" />
+				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
 			</columnConstraints>
 			<rowConstraints>
-				<RowConstraints minHeight="10.0" prefHeight="30.0"
-					vgrow="SOMETIMES" />
-				<RowConstraints minHeight="10.0" prefHeight="30.0"
-					vgrow="SOMETIMES" />
-				<RowConstraints minHeight="10.0" prefHeight="30.0"
-					vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
 			</rowConstraints>
 			<children>
 				<VBox prefHeight="200.0" prefWidth="100.0">
 					<children>
-						<BorderPane minWidth="200.0">
+						<BorderPane fx:id="borderPaneROI" minWidth="200.0">
 							<top>
-								<Label fx:id="ROILabel" text="ROI" BorderPane.alignment="CENTER" />
+								<Label fx:id="lblROI" text="ROI" BorderPane.alignment="CENTER" />
 							</top>
 							<center>
-								<StackPane fx:id="ROIPane" minHeight="73.0"
-									minWidth="130.0" style="-fx-border-style: solid;"
-									BorderPane.alignment="BOTTOM_LEFT">
+								<StackPane fx:id="stackpROI" minHeight="73.0" minWidth="130.0" style="-fx-border-style: solid; -fx-border-color: grey;" BorderPane.alignment="BOTTOM_LEFT">
 									<children>
-										<Rectangle fx:id="ROI" arcHeight="5.0"
-											arcWidth="5.0" fill="#bcdeff" height="35.0" smooth="false"
-											stroke="BLACK" strokeType="INSIDE" width="80.0"
-											StackPane.alignment="BOTTOM_LEFT" />
+										<Rectangle fx:id="rectROI" arcHeight="5.0" arcWidth="5.0" fill="#bcdeff" height="35.0" smooth="false" width="80.0" StackPane.alignment="BOTTOM_LEFT" />
 									</children>
 								</StackPane>
 							</center>
 							<bottom>
 								<VBox minWidth="130.0" BorderPane.alignment="CENTER">
 									<children>
-										<Slider fx:id="ROIWidth" minWidth="130.0"
-											onMouseDragged="#dragROIWidth" />
-										<Slider fx:id="ROIHorizontalPosition" minWidth="130.0"
-											onMouseDragged="#dragROIHorizontalPosition" value="50.0" />
+										<Slider fx:id="sliROIWidth" minWidth="130.0" onMouseDragged="#dragROIWidth" />
+										<Slider fx:id="sliROIHorizontalPosition" minWidth="130.0" onMouseDragged="#dragROIHorizontalPosition" value="50.0" />
 									</children>
 									<padding>
 										<Insets top="5.0" />
@@ -101,10 +85,8 @@
 							<right>
 								<HBox BorderPane.alignment="CENTER">
 									<children>
-										<Slider fx:id="ROIHeight" onMouseDragged="#dragROIHeight"
-											orientation="VERTICAL" />
-										<Slider fx:id="ROIVerticalPosition" minHeight="73.0"
-											onMouseDragged="#dragROIVerticalPosition" orientation="VERTICAL" />
+										<Slider fx:id="sliROIHeight" onMouseDragged="#dragROIHeight" orientation="VERTICAL" />
+										<Slider fx:id="sliROIVerticalPosition" minHeight="73.0" onMouseDragged="#dragROIVerticalPosition" orientation="VERTICAL" />
 									</children>
 									<BorderPane.margin>
 										<Insets />
@@ -118,16 +100,12 @@
 						<Separator prefWidth="200.0" />
 					</children>
 				</VBox>
-				<BorderPane prefHeight="200.0" prefWidth="200.0"
-					GridPane.rowIndex="1">
+				<BorderPane fx:id="borderPaneSpeed" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
 					<top>
 						<Label text="Speed" BorderPane.alignment="CENTER" />
 					</top>
 					<center>
-						<Slider fx:id="videoSpeed" blockIncrement="0.5"
-							majorTickUnit="0.25" max="2.0" min="0.25" onMouseDragged="#dragVideoSpeed"
-							showTickLabels="true" showTickMarks="true" value="1.0"
-							BorderPane.alignment="CENTER" />
+						<Slider fx:id="sliVideoSpeed" blockIncrement="0.5" majorTickUnit="0.25" max="2.0" min="0.25" onMouseDragged="#dragVideoSpeed" showTickLabels="true" showTickMarks="true" value="1.0" BorderPane.alignment="CENTER" />
 					</center>
 				</BorderPane>
 			</children>
@@ -136,9 +114,14 @@
 	<center>
 		<VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
 			<children>
-				<Label fx:id="videoTitle" text="" />
-				<ImageView fx:id="currentFrame" fitHeight="400.0"
-					fitWidth="600.0" pickOnBounds="true" preserveRatio="true" />
+				<Label fx:id="lblVideoTitle" text="">
+               <VBox.margin>
+                  <Insets left="5.0" />
+               </VBox.margin></Label>
+				<ImageView fx:id="currentFrame" fitHeight="400.0" fitWidth="590.0" pickOnBounds="true" preserveRatio="true">
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin></ImageView>
 			</children>
 		</VBox>
 	</center>
