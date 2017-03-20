@@ -1,2 +1,9 @@
 http://opencvexamples.blogspot.com/2013/10/line-detection-by-hough-line-transform.html
-https://www.youtube.com/watch?v=gfGW4Eda_nQ
+http://stackoverflow.com/questions/19887185/computer-vision-detecting-roads-where-to-start
+
+https://www.youtube.com/watch?v=gfGW4Eda_nQ - Lane Detection on a Urban Environment
+https://www.youtube.com/watch?v=iKnfenrFFSo - Diagnostic view of Advanced Lane Detection using OpenCV (questo è ciò che sarebbe bello ottenere)
+
+Documenti PDF:
+http://escholarship.org/uc/item/1bg5f8qd#page-1 - Video-based Lane Estimation and Tracking for Driving Assistance ...
+https://arxiv.org/pdf/1501.03124 - Robust and Real-Time Detection of Curvy Lanes
