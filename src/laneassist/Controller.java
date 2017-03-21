@@ -6,6 +6,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
@@ -45,6 +46,10 @@ public class Controller {
 	@FXML
 	private Slider sliVideoSpeed;
 	@FXML
+	private Slider sliCannyThreshold;
+	@FXML
+	private Label lblCannyThreshold;
+	@FXML
 	private StackPane stackpROI;
 	@FXML
 	private Rectangle rectROI;
@@ -53,7 +58,7 @@ public class Controller {
 	@FXML
 	private BorderPane borderPaneSpeed;
 
-	private final Double ROI_WIDTH = 80.0;
+	private final Double ROI_WIDTH = 120.0;
 	private final Double ROI_HEIGHT = 35.0;
 
 	private Insets spROIPadding;
@@ -63,19 +68,22 @@ public class Controller {
 	private Double curROIPaneHeight;
 	private Double frameWidth;
 	private Double frameHeight;
+	private Double frameCount;
 
 	private ScheduledExecutorService timer;
 	private ScheduledFuture<?> future;
 	private VideoCapture capture = new VideoCapture();
-	
-	//punti che delineano la ROI che verrà impressa sul frame
+
+	private int count = 0;
+
+	// punti che delineano la ROI che verrà impressa sul frame
 	private Point leftTopPointROI;
 	private Point rightBottomPointROI;
-	
+
 	Runnable frameGrabber;
-	
+
 	private Rect roi;
-	
+
 	/**
 	 * Inizializza i comandi della GUI
 	 */
@@ -83,7 +91,7 @@ public class Controller {
 		leftTopPointROI = new Point();
 		rightBottomPointROI = new Point();
 		roi = new Rect();
-		setGUIDisabled(true);	
+		setGUIDisabled(true);
 	}
 
 	/**
@@ -99,50 +107,59 @@ public class Controller {
 		fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Video Files", "*.avi", "*.mp4", ".mkv", ".mov"));
 		File video = fileChooser.showOpenDialog(null);
 
-		if (capture.isOpened()) {
-			setClosed();
-		}
-		
-		//carico il video
-		capture.open(video.getAbsolutePath());
+		if (video != null) {
+			if (capture.isOpened()) {
+				setClosed();
+			}
 
-		if (capture.isOpened()) {
-			lblVideoTitle.setText(video.getName());
-			//ottengo le dimensioni del frame
-			frameWidth = capture.get(Videoio.CAP_PROP_FRAME_WIDTH);
-			frameHeight = capture.get(Videoio.CAP_PROP_FRAME_HEIGHT);
-			setGUIDisabled(false);
-			computeROIDimension();
-			computePointsForROI();
-			frameGrabber = new Runnable() {
+			// carico il video
+			capture.open(video.getAbsolutePath());
 
-				@Override
-				public void run() {
-					Mat frame = grabFrame();
-					Imgproc.rectangle(frame, leftTopPointROI, rightBottomPointROI, new Scalar(0,0,255), 3);
-					Image imageToShow = Utils.mat2Image(frame);
-					updateImageView(currentFrame, imageToShow);
-				}
-			};
+			if (capture.isOpened()) {
+				lblVideoTitle.setText(video.getName());
+				// ottengo le dimensioni del frame
+				frameWidth = capture.get(Videoio.CAP_PROP_FRAME_WIDTH);
+				frameHeight = capture.get(Videoio.CAP_PROP_FRAME_HEIGHT);
+				frameCount = capture.get(Videoio.CAP_PROP_FRAME_COUNT);
+				System.out.println("frameCount = " + frameCount);
+				setGUIDisabled(false);
+				computeROIDimension();
+				computePointsForROI();
+				frameGrabber = new Runnable() {
 
-			timer = Executors.newSingleThreadScheduledExecutor();
-			future = timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
+					@Override
+					public void run() {
+						Mat frame = grabFrame();
+						if (frame != null) {
+							Imgproc.rectangle(frame, leftTopPointROI, rightBottomPointROI, new Scalar(0, 0, 255), 3);
+							Image imageToShow = Utils.mat2Image(frame);
+							updateImageView(currentFrame, imageToShow);
+						} else {
+							setClosed();
+						}
+					}
+				};
 
-		} else {
-			Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Error");
-			alert.setHeaderText("The video cannot be opened");
-			alert.showAndWait();
+				timer = Executors.newSingleThreadScheduledExecutor();
+				future = timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
+
+			} else {
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Error");
+				alert.setHeaderText("The video cannot be opened");
+				alert.showAndWait();
+			}
 		}
 	}
-	
+
 	@FXML
 	private void actionMenuClose() {
 		setClosed();
 	}
 
 	/**
-	 * Comando slider che aumenta/diminuisce la larghezza della Region of Interest (rettangolo azzurrino).
+	 * Comando slider che aumenta/diminuisce la larghezza della Region of
+	 * Interest (rettangolo azzurrino).
 	 */
 	@FXML
 	private void dragROIWidth() {
@@ -165,7 +182,8 @@ public class Controller {
 	}
 
 	/**
-	 * Comando slider che aumenta/diminuisce l'altezza della Region of Interest (rettangolo azzurrino).
+	 * Comando slider che aumenta/diminuisce l'altezza della Region of Interest
+	 * (rettangolo azzurrino).
 	 */
 	@FXML
 	private void dragROIHeight() {
@@ -187,7 +205,8 @@ public class Controller {
 	}
 
 	/**
-	 * Comando slider che sposta la Region of Interest (rettangolo azzurrino) orizzontalmente all'interno del frame (contorno nero).
+	 * Comando slider che sposta la Region of Interest (rettangolo azzurrino)
+	 * orizzontalmente all'interno del frame (contorno nero).
 	 */
 	@FXML
 	private void dragROIHorizontalPosition() {
@@ -199,7 +218,8 @@ public class Controller {
 	}
 
 	/**
-	 * Comando slider che sposta la Region of Interest (rettangolo azzurrino) verticalmente all'interno del frame (contorno nero).
+	 * Comando slider che sposta la Region of Interest (rettangolo azzurrino)
+	 * verticalmente all'interno del frame (contorno nero).
 	 */
 	@FXML
 	private void dragROIVerticalPosition() {
@@ -215,12 +235,21 @@ public class Controller {
 	 */
 	@FXML
 	private void dragVideoSpeed() {
-		if(!future.isCancelled()) {
+		if (!future.isCancelled()) {
 			future.cancel(false);
-			future = timer.scheduleAtFixedRate(frameGrabber, 0, (long) (33 / sliVideoSpeed.getValue()), TimeUnit.MILLISECONDS);
+			future = timer.scheduleAtFixedRate(frameGrabber, 0, (long) (33 / sliVideoSpeed.getValue()),
+					TimeUnit.MILLISECONDS);
 		}
 	}
-	
+
+	/**
+	 * Comando slider per aumentare/ridurre il canny
+	 */
+	@FXML
+	private void dragCannyThreshold() {
+		double value = sliCannyThreshold.getValue();
+		lblCannyThreshold.setText(String.valueOf(value));
+	}
 
 	protected void setClosed() {
 		if (this.timer != null && !this.timer.isShutdown()) {
@@ -238,27 +267,30 @@ public class Controller {
 			capture.release();
 			updateImageView(currentFrame, null);
 		}
-		
+
 	}
-	
+
 	/**
-	 * Per disegnare il rettangolo contenente la rappresentazione della ROI, in modo che mantenga lo stesso aspect ratio del video
+	 * Per disegnare il rettangolo contenente la rappresentazione della ROI, in
+	 * modo che mantenga lo stesso aspect ratio del video
+	 * 
 	 * @param mat
 	 */
-	private void computeROIDimension(){
-		int dim = (int)Math.round(stackpROI.getWidth()*frameWidth/frameHeight);
+	private void computeROIDimension() {
+		int dim = (int) Math.round(stackpROI.getWidth() * frameWidth / frameHeight);
 		stackpROI.setPrefHeight(dim);
 		System.out.println("dim: " + dim);
 	}
-		
-	//per abilitare/disabilitare i controlli della GUI relativi al video
-	protected void setGUIDisabled(boolean value){
+
+	// per abilitare/disabilitare i controlli della GUI relativi al video
+	protected void setGUIDisabled(boolean value) {
 		borderPaneSpeed.setDisable(value);
 		borderPaneROI.setDisable(value);
-		if(value){ //schiarisco i colori del rettangolo ROI
+		if (value) { // schiarisco i colori del rettangolo ROI
 			rectROI.setVisible(false);
 			stackpROI.setStyle("-fx-border-color: lightgrey ;");
-		}else{	//attivo il rettangolo azzurro e lo posiziono in base ai cursori
+		} else { // attivo il rettangolo azzurro e lo posiziono in base ai
+					// cursori
 			hPaddingMax = stackpROI.getWidth() - rectROI.getWidth();
 			vPaddingMax = stackpROI.getHeight() - rectROI.getHeight();
 			Double padding = hPaddingMax / 2;
@@ -271,24 +303,28 @@ public class Controller {
 			stackpROI.setStyle("-fx-border-color: grey ;");
 		}
 	}
-	
+
 	/**
 	 * Disegna la ROI sul frame corrente
 	 */
-	private void computePointsForROI(){
-		int x = (int)Math.round(stackpROI.getPadding().getLeft()*frameWidth/stackpROI.getWidth());
-		int y = (int)Math.round(frameHeight - (stackpROI.getPadding().getBottom()*frameHeight/stackpROI.getHeight()));
+	private void computePointsForROI() {
+		int x = (int) Math.round(stackpROI.getPadding().getLeft() * frameWidth / stackpROI.getWidth());
+		int y = (int) Math
+				.round(frameHeight - (stackpROI.getPadding().getBottom() * frameHeight / stackpROI.getHeight()));
 		leftTopPointROI.x = x;
-		leftTopPointROI.y = y - Math.round(frameHeight*rectROI.getHeight()/stackpROI.getHeight());
-		rightBottomPointROI.x = x + Math.round(frameWidth*rectROI.getWidth()/stackpROI.getWidth());
+		leftTopPointROI.y = y - Math.round(frameHeight * rectROI.getHeight() / stackpROI.getHeight());
+		rightBottomPointROI.x = x + Math.round(frameWidth * rectROI.getWidth() / stackpROI.getWidth());
 		rightBottomPointROI.y = y;
-		//il rettangolo viene disegnato a partire da top-left del frame, che è 0,0
-		//Imgproc.rectangle(frame, leftTopPointROI, rightBottomPointROI, new Scalar(0,0,255), 3);
+		// il rettangolo viene disegnato a partire da top-left del frame, che è
+		// 0,0
+		// Imgproc.rectangle(frame, leftTopPointROI, rightBottomPointROI, new
+		// Scalar(0,0,255), 3);
 		roi = new Rect(leftTopPointROI, rightBottomPointROI);
 	}
-	
+
 	/**
 	 * Ottiene il frame corrente
+	 * 
 	 * @return Mat contenente il frame corrente
 	 */
 	private Mat grabFrame() {
@@ -300,10 +336,36 @@ public class Controller {
 				this.capture.read(frame);
 
 				if (!frame.empty()) {
+					// System.out.println("frame " + count++);
 
 					// ottiene la ROI a partire dal rettangolo Rect roi
 					Mat imageROI = frame.submat(roi);
-					//da qua in poi penso ci serva il canny e la hough transform
+					// da qua in poi penso ci serva il canny e la hough
+					// transform
+					Mat workingROI = imageROI.clone();
+					Imgproc.cvtColor(imageROI, workingROI, Imgproc.COLOR_BGR2GRAY);
+					Imgproc.blur(workingROI, workingROI, new Size(5, 5));
+					Imgproc.Canny(workingROI, workingROI, sliCannyThreshold.getValue(),
+							3 * sliCannyThreshold.getValue(), 3, false);
+					// Imgproc.cvtColor(workingROI, workingROI,
+					// Imgproc.COLOR_GRAY2BGR);
+					// Core.addWeighted(imageROI, 1.0, workingROI, 0.7, 0.0,
+					// imageROI);
+
+					Mat lines = new Mat();
+					Imgproc.HoughLinesP(workingROI, lines, 1, Math.PI / 180, 50, 50, 10);
+
+					for (int i = 0; i < lines.cols(); i++) {
+						double[] val = lines.get(0, i);
+						Imgproc.line(imageROI, new Point(val[0], val[1]), new Point(val[2], val[3]),
+								new Scalar(0, 0, 255), 2);
+					}
+					Imgproc.cvtColor(workingROI, workingROI, Imgproc.COLOR_GRAY2BGR);
+					Core.addWeighted(imageROI, 1.0, workingROI, 0.7, 0.0, imageROI);
+				} else {
+					System.err.println(
+							"Mat object has 0 rows and 0 cols, which means that probably the video is finished.");
+					return null;
 				}
 
 			} catch (Exception e) {
@@ -315,15 +377,18 @@ public class Controller {
 		}
 
 		return frame;
-	}	
+	}
 
 	/**
 	 * Aggiorna l'immagine mostrata a video
-	 * @param view elemento FXML in cui l'immagine deve essere mostrata
-	 * @param image frame da mostrare
+	 * 
+	 * @param view
+	 *            elemento FXML in cui l'immagine deve essere mostrata
+	 * @param image
+	 *            frame da mostrare
 	 */
 	private void updateImageView(ImageView view, Image image) {
 		Utils.onFXThread(view.imageProperty(), image);
-	}	
+	}
 
 }

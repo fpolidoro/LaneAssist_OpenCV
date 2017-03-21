@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
 
-<BorderPane xmlns="http://javafx.com/javafx/8.0.102" xmlns:fx="http://javafx.com/fxml/1" fx:controller="laneassist.Controller">
+<BorderPane minWidth="800.0" xmlns="http://javafx.com/javafx/8.0.102" xmlns:fx="http://javafx.com/fxml/1" fx:controller="laneassist.Controller">
 	<top>
 		<MenuBar BorderPane.alignment="CENTER">
 			<menus>
@@ -64,7 +67,7 @@
 							<center>
 								<StackPane fx:id="stackpROI" minHeight="73.0" minWidth="130.0" style="-fx-border-style: solid; -fx-border-color: grey;" BorderPane.alignment="BOTTOM_LEFT">
 									<children>
-										<Rectangle fx:id="rectROI" arcHeight="5.0" arcWidth="5.0" fill="#bcdeff" height="35.0" smooth="false" width="80.0" StackPane.alignment="BOTTOM_LEFT" />
+										<Rectangle fx:id="rectROI" arcHeight="5.0" arcWidth="5.0" fill="#bcdeff" height="35.0" smooth="false" width="120.0" StackPane.alignment="BOTTOM_LEFT" />
 									</children>
 								</StackPane>
 							</center>
@@ -112,16 +115,54 @@
 		</GridPane>
 	</right>
 	<center>
-		<VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+		<VBox minHeight="400.0" BorderPane.alignment="CENTER">
 			<children>
 				<Label fx:id="lblVideoTitle" text="">
                <VBox.margin>
                   <Insets left="5.0" />
                </VBox.margin></Label>
-				<ImageView fx:id="currentFrame" fitHeight="400.0" fitWidth="590.0" pickOnBounds="true" preserveRatio="true">
-               <VBox.margin>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </VBox.margin></ImageView>
+            <Pane>
+               <children>
+      				<ImageView fx:id="currentFrame" fitHeight="400.0" fitWidth="590.0" pickOnBounds="true" preserveRatio="true" />
+               </children>
+            </Pane>
+            <Accordion>
+              <panes>
+                <TitledPane animated="false" text="Debug">
+                     <content>
+                        <GridPane>
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                              <VBox fx:id="vBoxCanny" prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
+                                 <children>
+                                    <HBox prefHeight="100.0" prefWidth="200.0">
+                                       <children>
+                                          <Label contentDisplay="CENTER" minWidth="33.0" text="Canny" textAlignment="CENTER" />
+                                          <Label fx:id="lblCannyThreshold" alignment="CENTER_RIGHT" minWidth="37.0" text="0">
+                                             <HBox.margin>
+                                                <Insets left="120.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                  					<Slider fx:id="sliCannyThreshold" onMouseDragged="#dragCannyThreshold" />
+                                    <Label alignment="CENTER" text="Hough Transform" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </GridPane>
+                     </content>
+                </TitledPane>
+              </panes>
+            </Accordion>
 			</children>
 		</VBox>
 	</center>
