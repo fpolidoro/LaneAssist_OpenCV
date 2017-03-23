@@ -167,6 +167,7 @@ public class Controller {
 
 				timer = Executors.newSingleThreadScheduledExecutor();
 				future = timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
+				imgPlayPause.setImage(pauseImg);
 
 			} else {
 				Alert alert = new Alert(AlertType.ERROR);
@@ -274,11 +275,11 @@ public class Controller {
 	private void clickBtnPlayPause(){
 		//se l'img corrente è play, allora ero in pausa del video e devo farlo ripartire
 		if(imgPlayPause.getImage().equals(playImg)){
-			imgPlayPause.setImage(pauseImg);
-			System.out.println("c'era play e ora pause");
+			imgPlayPause.setImage(pauseImg);		
+			future = timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
 		}else{	//l'img corrente è pause, quindi devo mettere in pausa il video
 			imgPlayPause.setImage(playImg);
-			System.out.println("c'era pause e ora play");
+			future.cancel(false);
 		}
 	}
 	
@@ -393,34 +394,40 @@ public class Controller {
 
 				if (!frame.empty()) {
 					// System.out.println("frame " + count++);
-
-					// ottiene la ROI a partire dal rettangolo Rect roi
+					
 					Mat imageROI = frame.submat(roi);
-					// da qua in poi penso ci serva il canny e la hough
-					// transform
 					Mat workingROI = imageROI.clone();
+					
 					Imgproc.cvtColor(imageROI, workingROI, Imgproc.COLOR_BGR2GRAY);
+//					Imgproc.equalizeHist(workingROI, workingROI);
 					Imgproc.blur(workingROI, workingROI, new Size(5, 5));
+					
+					
+					//Canny
 					Imgproc.Canny(workingROI, workingROI, sliCannyThreshold.getValue(),
 							3 * sliCannyThreshold.getValue(), 3, false);
-					// Imgproc.cvtColor(workingROI, workingROI,
-					// Imgproc.COLOR_GRAY2BGR);
-					// Core.addWeighted(imageROI, 1.0, workingROI, 0.7, 0.0,
-					// imageROI);
-
+					
+					//AdaptiveThreshold (meglio con equalizzazione)
+//					Imgproc.adaptiveThreshold(workingROI, workingROI, 240, 
+//							Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C,
+//							Imgproc.THRESH_BINARY_INV, 11, 10);
+					
+					//Hough
 					Mat lines = new Mat();
 					Imgproc.HoughLinesP(workingROI, lines, 1, Math.PI / 180, 50, 50, 10);
 
-					for (int i = 0; i < lines.cols(); i++) {
-						double[] val = lines.get(0, i);
+					for (int i = 0; i < lines.rows(); i++) {
+						double[] val = lines.get(i, 0);
 						Imgproc.line(imageROI, new Point(val[0], val[1]), new Point(val[2], val[3]),
-								new Scalar(0, 0, 255), 2);
+								new Scalar(0, 0, 255), 4);
 					}
+					
+					
 					Imgproc.cvtColor(workingROI, workingROI, Imgproc.COLOR_GRAY2BGR);
 					Core.addWeighted(imageROI, 1.0, workingROI, 0.7, 0.0, imageROI);
+					
 				} else {
-					System.err.println(
-							"Mat object has 0 rows and 0 cols, which means that probably the video is finished.");
+					System.err.println("Video concluso");
 					return null;
 				}
 
