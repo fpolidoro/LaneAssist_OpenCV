@@ -16,12 +16,15 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
 
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -57,6 +60,16 @@ public class Controller {
 	private BorderPane borderPaneROI;
 	@FXML
 	private BorderPane borderPaneSpeed;
+	@FXML
+	private Button btnPlayPause;
+	@FXML
+	private Button btnForward;
+	@FXML
+	private Button btnRewind;
+	@FXML
+	private ImageView imgPlayPause;
+	private Image playImg;
+	private Image pauseImg;
 
 	private final Double ROI_WIDTH = 120.0;
 	private final Double ROI_HEIGHT = 35.0;
@@ -92,6 +105,18 @@ public class Controller {
 		rightBottomPointROI = new Point();
 		roi = new Rect();
 		setGUIDisabled(true);
+		try{
+		playImg = new Image("icons/play32x32.png");
+		pauseImg = new Image("icons/pause32x32.png");
+		//btnPlayPause.setGraphic(imgPlayPause);
+		//imposto le img per play e pause sul toggle button
+		imgPlayPause.setImage(playImg);
+		}catch(IllegalArgumentException iae){
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Illegal Argument Exception");
+			alert.setHeaderText(iae.getMessage());
+			alert.showAndWait();
+		}
 	}
 
 	/**
@@ -240,6 +265,37 @@ public class Controller {
 			future = timer.scheduleAtFixedRate(frameGrabber, 0, (long) (33 / sliVideoSpeed.getValue()),
 					TimeUnit.MILLISECONDS);
 		}
+	}
+	
+	/**
+	 * Comando bottone play/pause
+	 */
+	@FXML
+	private void clickBtnPlayPause(){
+		//se l'img corrente è play, allora ero in pausa del video e devo farlo ripartire
+		if(imgPlayPause.getImage().equals(playImg)){
+			imgPlayPause.setImage(pauseImg);
+			System.out.println("c'era play e ora pause");
+		}else{	//l'img corrente è pause, quindi devo mettere in pausa il video
+			imgPlayPause.setImage(playImg);
+			System.out.println("c'era pause e ora play");
+		}
+	}
+	
+	/**
+	 * Comando bottone rewind
+	 */
+	@FXML
+	private void clickBtnRewind(){
+		
+	}
+	
+	/**
+	 * Comando bottone forward
+	 */
+	@FXML
+	private void clickBtnForward(){
+		
 	}
 
 	/**

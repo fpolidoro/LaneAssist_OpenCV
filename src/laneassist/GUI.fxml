@@ -2,13 +2,15 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
@@ -21,7 +23,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
 
-<BorderPane minWidth="800.0" xmlns="http://javafx.com/javafx/8.0.102" xmlns:fx="http://javafx.com/fxml/1" fx:controller="laneassist.Controller">
+<BorderPane minWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="laneassist.Controller">
 	<top>
 		<MenuBar BorderPane.alignment="CENTER">
 			<menus>
@@ -29,18 +31,23 @@
 					<items>
 						<MenuItem fx:id="menuItemOpen" mnemonicParsing="false" onAction="#actionMenuOpen" text="Open">
 							<accelerator>
-								<KeyCodeCombination alt="UP" code="O" control="ANY" meta="UP" shift="UP" shortcut="UP" />
+								<KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
 							</accelerator>
 						</MenuItem>
 						<MenuItem fx:id="menuItemClose" mnemonicParsing="false" onAction="#actionMenuClose" text="Close">
 							<accelerator>
-								<KeyCodeCombination alt="ANY" code="F4" control="UP" meta="UP" shift="UP" shortcut="UP" />
+								<KeyCodeCombination alt="DOWN" code="F4" control="UP" meta="UP" shift="UP" shortcut="UP" />
 							</accelerator>
 						</MenuItem>
 					</items>
 				</Menu>
 				<Menu mnemonicParsing="false" text="Help">
 					<items>
+                  <CheckMenuItem mnemonicParsing="false" text="Show debug toolbar">
+                     <accelerator>
+                        <KeyCodeCombination alt="DOWN" code="D" control="UP" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </CheckMenuItem>
 						<MenuItem mnemonicParsing="false" text="About" />
 					</items>
 				</Menu>
@@ -48,7 +55,7 @@
 		</MenuBar>
 	</top>
 	<right>
-		<GridPane fx:id="gridPane" minWidth="200.0" BorderPane.alignment="CENTER">
+		<GridPane fx:id="gridPane" minWidth="200.0" style="-fx-border-style: hidden hidden hidden solid; -fx-border-color: lightgrey;" BorderPane.alignment="CENTER">
 			<columnConstraints>
 				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
 			</columnConstraints>
@@ -60,12 +67,12 @@
 			<children>
 				<VBox prefHeight="200.0" prefWidth="100.0">
 					<children>
-						<BorderPane fx:id="borderPaneROI" minWidth="200.0">
+						<BorderPane fx:id="borderPaneROI">
 							<top>
 								<Label fx:id="lblROI" text="ROI" BorderPane.alignment="CENTER" />
 							</top>
 							<center>
-								<StackPane fx:id="stackpROI" minHeight="73.0" minWidth="130.0" style="-fx-border-style: solid; -fx-border-color: grey;" BorderPane.alignment="BOTTOM_LEFT">
+								<StackPane fx:id="stackpROI" maxHeight="-Infinity" maxWidth="155.0" minHeight="87.0" minWidth="155.0" prefHeight="87.0" style="-fx-border-style: solid; -fx-border-color: grey;" BorderPane.alignment="BOTTOM_LEFT">
 									<children>
 										<Rectangle fx:id="rectROI" arcHeight="5.0" arcWidth="5.0" fill="#bcdeff" height="35.0" smooth="false" width="120.0" StackPane.alignment="BOTTOM_LEFT" />
 									</children>
@@ -100,8 +107,10 @@
 								</HBox>
 							</right>
 						</BorderPane>
-						<Separator prefWidth="200.0" />
 					</children>
+               <GridPane.margin>
+                  <Insets />
+               </GridPane.margin>
 				</VBox>
 				<BorderPane fx:id="borderPaneSpeed" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
 					<top>
@@ -110,22 +119,60 @@
 					<center>
 						<Slider fx:id="sliVideoSpeed" blockIncrement="0.5" majorTickUnit="0.25" max="2.0" min="0.25" onMouseDragged="#dragVideoSpeed" showTickLabels="true" showTickMarks="true" value="1.0" BorderPane.alignment="CENTER" />
 					</center>
+               <bottom>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                     <children>
+                        <Button fx:id="btnRewind" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" onMouseClicked="#clickBtnRewind" style="-fx-background-radius: 5em;">
+                           <HBox.margin>
+                              <Insets right="5.0" />
+                           </HBox.margin>
+                           <graphic>
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../../icons/rewind24x24.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                        <Button fx:id="btnPlayPause" accessibleRole="BUTTON" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onMouseClicked="#clickBtnPlayPause" style="-fx-background-radius: 5em;">
+                           <graphic>
+                              <ImageView fx:id="imgPlayPause" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                              </ImageView>
+                           </graphic></Button>
+                        <Button fx:id="btnForward" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" onMouseClicked="#clickBtnForward" style="-fx-background-radius: 5em;">
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                           <graphic>
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" rotate="180.0">
+                                 <image>
+                                    <Image url="@../../icons/rewind24x24.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                     </children>
+                  </HBox>
+               </bottom>
 				</BorderPane>
 			</children>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
+         <padding>
+            <Insets left="5.0" right="5.0" />
+         </padding>
 		</GridPane>
 	</right>
 	<center>
 		<VBox minHeight="400.0" BorderPane.alignment="CENTER">
 			<children>
-				<Label fx:id="lblVideoTitle" text="">
-               <VBox.margin>
-                  <Insets left="5.0" />
-               </VBox.margin></Label>
-            <Pane>
+            <Pane minHeight="20.0" style="-fx-border-style: hidden hidden solid hidden; -fx-border-color: lightgrey;">
                <children>
-      				<ImageView fx:id="currentFrame" fitHeight="400.0" fitWidth="590.0" pickOnBounds="true" preserveRatio="true" />
+      				<Label fx:id="lblVideoTitle" text="" />
                </children>
             </Pane>
+				<ImageView fx:id="currentFrame" fitHeight="400.0" fitWidth="590.0" pickOnBounds="true" preserveRatio="true" />
             <Accordion>
               <panes>
                 <TitledPane animated="false" text="Debug">
@@ -154,7 +201,6 @@
                                        </children>
                                     </HBox>
                   					<Slider fx:id="sliCannyThreshold" onMouseDragged="#dragCannyThreshold" />
-                                    <Label alignment="CENTER" text="Hough Transform" />
                                  </children>
                               </VBox>
                            </children>
