@@ -16,26 +16,30 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
 
-import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import laneassist.utils.Utils;
+import utils.Utils;
 
 public class Controller {
 	@FXML
+	private CheckMenuItem menuItemShowDebug;
+	@FXML
 	private ImageView currentFrame;
+	@FXML
+	private Pane paneFrame;
 	@FXML
 	private Label lblVideoTitle;
 	@FXML
@@ -55,11 +59,21 @@ public class Controller {
 	@FXML
 	private StackPane stackpROI;
 	@FXML
+	private ImageView imgMoveROIUpDown;
+	@FXML
+	private ImageView imgMoveROILeftRight;
+	@FXML
+	private ImageView imgResizeROIHorizontally;
+	@FXML
+	private ImageView imgResizeROIVertically;
+	@FXML
 	private Rectangle rectROI;
 	@FXML
 	private BorderPane borderPaneROI;
 	@FXML
 	private BorderPane borderPaneSpeed;
+	@FXML
+	private GridPane gridPaneDebug;
 	@FXML
 	private Button btnPlayPause;
 	@FXML
@@ -87,8 +101,6 @@ public class Controller {
 	private ScheduledFuture<?> future;
 	private VideoCapture capture = new VideoCapture();
 
-	private int count = 0;
-
 	// punti che delineano la ROI che verrà impressa sul frame
 	private Point leftTopPointROI;
 	private Point rightBottomPointROI;
@@ -105,9 +117,10 @@ public class Controller {
 		rightBottomPointROI = new Point();
 		roi = new Rect();
 		setGUIDisabled(true);
+		lblCannyThreshold.setText(String.valueOf(sliCannyThreshold.getValue()));
 		try{
-		playImg = new Image("icons/play32x32.png");
-		pauseImg = new Image("icons/pause32x32.png");
+			playImg = new Image("icons/play32x32.png");
+			pauseImg = new Image("icons/pause32x32.png");
 		//btnPlayPause.setGraphic(imgPlayPause);
 		//imposto le img per play e pause sul toggle button
 		imgPlayPause.setImage(playImg);
@@ -182,6 +195,14 @@ public class Controller {
 	private void actionMenuClose() {
 		setClosed();
 	}
+	
+	@FXML
+	private void checkMenuItemDebug(){
+		if(menuItemShowDebug.isSelected())
+			gridPaneDebug.setVisible(true);
+		else
+			gridPaneDebug.setVisible(false);
+	}
 
 	/**
 	 * Comando slider che aumenta/diminuisce la larghezza della Region of
@@ -196,6 +217,8 @@ public class Controller {
 		} else {
 			sliROIHorizontalPosition.setDisable(false);
 		}
+		imgResizeROIHorizontally.setVisible(false);
+		rectROI.setVisible(true);
 		rectROI.setWidth(width);
 
 		hPaddingMax = stackpROI.getWidth() - rectROI.getWidth();
@@ -205,6 +228,18 @@ public class Controller {
 		stackpROI.setPadding(
 				new Insets(spROIPadding.getTop(), spROIPadding.getRight(), spROIPadding.getBottom(), padding));
 		computePointsForROI();
+	}
+	
+	@FXML
+	private void mouseEnteredResizeROIWidth(){
+		imgResizeROIHorizontally.setVisible(true);
+		rectROI.setVisible(false);
+	}
+	
+	@FXML
+	private void mouseExitedResizeROIWidth(){
+		imgResizeROIHorizontally.setVisible(false);
+		rectROI.setVisible(true);
 	}
 
 	/**
@@ -219,6 +254,8 @@ public class Controller {
 			sliROIVerticalPosition.setDisable(true);
 		} else
 			sliROIVerticalPosition.setDisable(false);
+		imgResizeROIVertically.setVisible(false);
+		rectROI.setVisible(true);
 		rectROI.setHeight(height);
 
 		vPaddingMax = stackpROI.getHeight() - rectROI.getHeight();
@@ -229,6 +266,18 @@ public class Controller {
 				new Insets(spROIPadding.getTop(), spROIPadding.getRight(), padding, spROIPadding.getLeft()));
 		computePointsForROI();
 	}
+	
+	@FXML
+	private void mouseEnteredResizeROIHeight(){
+		imgResizeROIVertically.setVisible(true);
+		rectROI.setVisible(false);
+	}
+	
+	@FXML
+	private void mouseExitedResizeROIHeight(){
+		imgResizeROIVertically.setVisible(false);
+		rectROI.setVisible(true);
+	}
 
 	/**
 	 * Comando slider che sposta la Region of Interest (rettangolo azzurrino)
@@ -237,10 +286,24 @@ public class Controller {
 	@FXML
 	private void dragROIHorizontalPosition() {
 		Double padding = sliROIHorizontalPosition.getValue() * hPaddingMax / 100;
+		rectROI.setVisible(true);
+		imgMoveROILeftRight.setVisible(false);
 		spROIPadding = stackpROI.getPadding();
 		stackpROI.setPadding(
 				new Insets(spROIPadding.getTop(), spROIPadding.getRight(), spROIPadding.getBottom(), padding));
 		computePointsForROI();
+	}
+	
+	@FXML
+	private void mouseEnteredMoveROILeftRight(){
+		imgMoveROILeftRight.setVisible(true);
+		rectROI.setVisible(false);
+	}
+	
+	@FXML
+	private void mouseExitedMoveROILeftRight(){
+		imgMoveROILeftRight.setVisible(false);
+		rectROI.setVisible(true);
 	}
 
 	/**
@@ -251,9 +314,25 @@ public class Controller {
 	private void dragROIVerticalPosition() {
 		Double padding = sliROIVerticalPosition.getValue() * vPaddingMax / 100;
 		spROIPadding = stackpROI.getPadding();
+		imgMoveROIUpDown.setVisible(false);
+		rectROI.setVisible(true);
 		stackpROI.setPadding(
 				new Insets(spROIPadding.getTop(), spROIPadding.getRight(), padding, spROIPadding.getLeft()));
 		computePointsForROI();
+	}
+	
+	@FXML
+	private void mouseEnteredMoveROIUpDown(){
+		//System.out.println("siamo in mouseEnteredROIUpDown");
+		imgMoveROIUpDown.setVisible(true);
+		rectROI.setVisible(false);
+	}
+	
+	@FXML
+	private void mouseExitedMoveROIUpDown(){
+		//System.err.println("siamo in mouseExitedROIUpDown");
+		imgMoveROIUpDown.setVisible(false);
+		rectROI.setVisible(true);
 	}
 
 	/**
@@ -334,9 +413,10 @@ public class Controller {
 	 * @param mat
 	 */
 	private void computeROIDimension() {
-		int dim = (int) Math.round(stackpROI.getWidth() * frameWidth / frameHeight);
+		int dim = (int) Math.round(stackpROI.getWidth() * frameHeight / frameWidth);
 		stackpROI.setPrefHeight(dim);
-		System.out.println("dim: " + dim);
+		stackpROI.setMaxHeight(dim);
+		System.out.println("dim: " + stackpROI.getWidth() + " * " + frameHeight + " / " + frameWidth + " = " + dim);
 	}
 
 	// per abilitare/disabilitare i controlli della GUI relativi al video
@@ -399,8 +479,8 @@ public class Controller {
 					Mat workingROI = imageROI.clone();
 					
 					Imgproc.cvtColor(imageROI, workingROI, Imgproc.COLOR_BGR2GRAY);
-//					Imgproc.equalizeHist(workingROI, workingROI);
-					Imgproc.blur(workingROI, workingROI, new Size(5, 5));
+					//Imgproc.equalizeHist(workingROI, workingROI);
+					Imgproc.blur(workingROI, workingROI, new Size(3, 3));
 					
 					
 					//Canny
@@ -414,12 +494,19 @@ public class Controller {
 					
 					//Hough
 					Mat lines = new Mat();
-					Imgproc.HoughLinesP(workingROI, lines, 1, Math.PI / 180, 50, 50, 10);
+					Imgproc.HoughLinesP(workingROI, lines, 1, Math.PI/180, 30, 30, 5);
+					
+					//System.out.println("lines.rows = " + lines.rows());
 
 					for (int i = 0; i < lines.rows(); i++) {
 						double[] val = lines.get(i, 0);
-						Imgproc.line(imageROI, new Point(val[0], val[1]), new Point(val[2], val[3]),
+						//angle è per togliere tutte le linee orizzontali o quasi orizzontali
+						double angle = Math.atan2(val[3] - val[1], val[2] - val[0]) * 180.0 / Math.PI;
+						if((angle > 10 && angle <= 90) || (angle >= -90 && angle < -10)){
+							//System.out.println("angle: " + angle);
+							Imgproc.line(imageROI, new Point(val[0], val[1]), new Point(val[2], val[3]),
 								new Scalar(0, 0, 255), 4);
+						}
 					}
 					
 					
