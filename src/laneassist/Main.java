@@ -31,19 +31,20 @@ public class Main extends Application {
 			BorderPane rootElement = (BorderPane) loader.load();
 			
 			// create and style a scene
-			Scene scene = new Scene(rootElement, 800, 450);
+			Scene scene = new Scene(rootElement);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			
 			// create the stage with the given title and the previously created
 			// scene
 			primaryStage.setTitle("Lane Assist");
 			primaryStage.setScene(scene);
+			primaryStage.setResizable(false);
 			
 			// show the GUI
 			primaryStage.show();
 			
 			Controller controller = loader.getController();
-			controller.initializeGUI();
+			controller.initializeGUI(primaryStage);
 			
 			// set the proper behavior on closing the application
 			primaryStage.setOnCloseRequest((new EventHandler<WindowEvent>() {

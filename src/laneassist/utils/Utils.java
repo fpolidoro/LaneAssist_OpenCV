@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -24,6 +25,7 @@ public final class Utils
 			return null;
 		}
 	}
+
 	
 	public static <T> void onFXThread(final ObjectProperty<T> property, final T value)
 	{
@@ -52,5 +54,9 @@ public final class Utils
 		System.arraycopy(sourcePixels, 0, targetPixels, 0, sourcePixels.length);
 		
 		return image;
+	}
+	
+	public static double EuclideanDistance(Point p1, Point p2) {
+		return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
 	}
 }
