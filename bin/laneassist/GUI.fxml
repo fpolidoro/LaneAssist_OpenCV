@@ -30,7 +30,11 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.collections.FXCollections?>
 
+<<<<<<< HEAD
 <BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="laneassist.Controller">
+=======
+<BorderPane minHeight="650.0" minWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="laneassist.Controller">
+>>>>>>> origin/master
 	<top>
 		<MenuBar BorderPane.alignment="CENTER">
 			<menus>
@@ -61,6 +65,7 @@
 			</menus>
 		</MenuBar>
 	</top>
+<<<<<<< HEAD
    <center>
       <SplitPane fx:id="mainSplitPane" dividerPositions="0.5" BorderPane.alignment="CENTER">
          <items>
@@ -513,4 +518,213 @@
          </items>
       </SplitPane>
    </center>
+=======
+	<right>
+		<GridPane fx:id="gridPane" minWidth="200.0" style="-fx-border-style: hidden hidden hidden solid; -fx-border-color: lightgrey;" BorderPane.alignment="CENTER">
+			<columnConstraints>
+				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+			</columnConstraints>
+			<rowConstraints>
+				<RowConstraints maxHeight="-Infinity" minHeight="170.0" prefHeight="170.0" valignment="TOP" vgrow="SOMETIMES" />
+				<RowConstraints maxHeight="-Infinity" minHeight="100.0" prefHeight="100.0" vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+			</rowConstraints>
+			<children>
+				<VBox prefHeight="200.0" prefWidth="100.0">
+					<children>
+						<BorderPane fx:id="borderPaneROI" style="-fx-border-style: hidden hidden solid hidden; -fx-border-color: lightgrey;">
+							<top>
+								<Label text="Region of Interest" BorderPane.alignment="CENTER" />
+							</top>
+							<bottom>
+								<VBox minWidth="130.0" BorderPane.alignment="CENTER">
+									<children>
+										<Slider fx:id="sliROIWidth" maxWidth="155.0" minWidth="155.0" onMouseDragged="#dragROIWidth" onMouseEntered="#mouseEnteredResizeROIWidth" onMouseExited="#mouseExitedResizeROIWidth" />
+										<Slider fx:id="sliROIHorizontalPosition" maxWidth="155.0" minWidth="155.0" onMouseDragged="#dragROIHorizontalPosition" onMouseEntered="#mouseEnteredMoveROILeftRight" onMouseExited="#mouseExitedMoveROILeftRight" value="50.0" />
+									</children>
+									<padding>
+										<Insets top="5.0" />
+									</padding>
+									<BorderPane.margin>
+										<Insets />
+									</BorderPane.margin>
+								</VBox>
+							</bottom>
+							<right>
+								<HBox minWidth="32.0" BorderPane.alignment="CENTER_RIGHT">
+									<children>
+										<Slider fx:id="sliROIHeight" onMouseDragged="#dragROIHeight" onMouseEntered="#mouseEnteredResizeROIHeight" onMouseExited="#mouseExitedResizeROIHeight" orientation="VERTICAL" />
+										<Slider fx:id="sliROIVerticalPosition" minHeight="73.0" onMouseDragged="#dragROIVerticalPosition" onMouseEntered="#mouseEnteredMoveROIUpDown" onMouseExited="#mouseExitedMoveROIUpDown" orientation="VERTICAL">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin></Slider>
+									</children>
+									<BorderPane.margin>
+										<Insets />
+									</BorderPane.margin>
+								</HBox>
+							</right>
+                     <center>
+                        <StackPane maxHeight="116.0" maxWidth="152.0" minHeight="116.0" minWidth="152.0" prefHeight="116.0" prefWidth="152.0" BorderPane.alignment="CENTER">
+                           <children>
+      								<StackPane fx:id="stackpROI" maxHeight="-Infinity" maxWidth="150.0" minHeight="84.0" minWidth="150.0" prefHeight="84.0" style="-fx-border-style: solid; -fx-border-color: grey;">
+      									<children>
+      										<Rectangle fx:id="rectROI" arcHeight="5.0" arcWidth="5.0" fill="#bcdeff" height="35.0" smooth="false" width="120.0" StackPane.alignment="BOTTOM_LEFT" />
+      									</children>
+      								</StackPane>
+                              <ImageView fx:id="imgMoveROIUpDown" fitHeight="84.0" fitWidth="116.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                                 <image>
+                                    <Image url="@../../icons/moveUpDown.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fx:id="imgMoveROILeftRight" fitHeight="84.0" fitWidth="116.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                                 <image>
+                                    <Image url="@../../icons/moveROILeftRight.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fx:id="imgResizeROIVertically" fitHeight="84.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                                 <image>
+                                    <Image url="@../../icons/resizeROIVertically.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fx:id="imgResizeROIHorizontally" fitWidth="130.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                                 <image>
+                                    <Image url="@../../icons/resizeROIHorizontally.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </StackPane>
+                     </center>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                     <padding>
+                        <Insets bottom="5.0" />
+                     </padding>
+						</BorderPane>
+					</children>
+               <GridPane.margin>
+                  <Insets />
+               </GridPane.margin>
+				</VBox>
+				<BorderPane fx:id="borderPaneSpeed" GridPane.rowIndex="1">
+					<top>
+						<Label text="Speed" BorderPane.alignment="CENTER" />
+					</top>
+					<center>
+						<Slider fx:id="sliVideoSpeed" blockIncrement="0.5" majorTickUnit="0.25" max="2.0" min="0.25" onMouseDragged="#dragVideoSpeed" showTickLabels="true" showTickMarks="true" value="1.0" BorderPane.alignment="CENTER" />
+					</center>
+               <bottom>
+                  <HBox alignment="CENTER" BorderPane.alignment="CENTER">
+                     <children>
+                        <Button fx:id="btnRewind" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" onMouseClicked="#clickBtnRewind" style="-fx-background-radius: 5em;">
+                           <HBox.margin>
+                              <Insets right="5.0" />
+                           </HBox.margin>
+                           <graphic>
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../../icons/rewind24x24.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                        <Button fx:id="btnPlayPause" accessibleRole="BUTTON" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onMouseClicked="#clickBtnPlayPause" style="-fx-background-radius: 5em;">
+                           <graphic>
+                              <ImageView fx:id="imgPlayPause" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                              </ImageView>
+                           </graphic></Button>
+                        <Button fx:id="btnForward" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" onMouseClicked="#clickBtnForward" style="-fx-background-radius: 5em;">
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                           <graphic>
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" rotate="180.0">
+                                 <image>
+                                    <Image url="@../../icons/rewind24x24.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                     </children>
+                  </HBox>
+               </bottom>
+               <GridPane.margin>
+                  <Insets top="5.0" />
+               </GridPane.margin>
+				</BorderPane>
+			</children>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
+         <padding>
+            <Insets left="5.0" right="5.0" />
+         </padding>
+		</GridPane>
+	</right>
+	<center>
+		<VBox minHeight="400.0" BorderPane.alignment="CENTER">
+			<children>
+            <Pane minHeight="20.0" style="-fx-border-style: hidden hidden solid hidden; -fx-border-color: lightgrey;">
+               <children>
+      				<Label fx:id="lblVideoTitle" text="" />
+               </children>
+            </Pane>
+            <Pane fx:id="paneFrame" style="-fx-background-color: pink;">
+               <children>
+      				<ImageView fx:id="currentFrame" fitHeight="400.0" fitWidth="600.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" />
+               </children>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Pane>
+			</children>
+		</VBox>
+	</center>
+   <bottom>
+      <GridPane fx:id="gridPaneDebug" prefHeight="200.0" style="-fx-border-style: solid hidden hidden hidden; -fx-border-color: lightgrey;" BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <VBox fx:id="vBoxCanny" prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
+               <children>
+                  <Label text="Blur" />
+                  <Slider />
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label contentDisplay="CENTER" minWidth="33.0" text="Canny" textAlignment="CENTER" />
+                        <Label fx:id="lblCannyThreshold" alignment="CENTER_RIGHT" minWidth="37.0" text="0">
+                           <HBox.margin>
+                              <Insets left="120.0" />
+                           </HBox.margin>
+                        </Label>
+                     </children>
+                  </HBox>
+					<Slider fx:id="sliCannyThreshold" onMouseDragged="#dragCannyThreshold" value="27.0" />
+               </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" style="-fx-border-style: hidden solid hidden solid; -fx-border-color: lightgrey;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <children>
+                  <Label text="Hough Lines" />
+                  <Label text="Alpha" />
+                  <Slider />
+                  <Label text="Rho" />
+                  <Slider />
+               </children>
+               <padding>
+                  <Insets left="5.0" right="5.0" />
+               </padding>
+            </VBox>
+            <Label text="Debug" />
+         </children>
+      </GridPane>
+   </bottom>
+>>>>>>> origin/master
 </BorderPane>
