@@ -68,7 +68,7 @@
               <items>
                 <AnchorPane maxHeight="360.0" maxWidth="640.0" minHeight="360.0" minWidth="640.0" prefHeight="360.0" prefWidth="640.0" SplitPane.resizableWithParent="false">
                      <children>
-            				<ImageView fx:id="currentFrame" fitHeight="360.0" fitWidth="640.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            				<ImageView fx:id="currentImage" fitHeight="360.0" fitWidth="640.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                         <Label fx:id="lblSpeed" textAlignment="RIGHT" textFill="WHITE" visible="false" AnchorPane.rightAnchor="42.0" AnchorPane.topAnchor="32.0">
                            <font>
                               <Font name="Tahoma Bold" size="48.0" />
@@ -411,7 +411,100 @@
                                           </TitledPane>
                                           <TitledPane expanded="false" text="Lane constraints">
                                              <content>
-                                                <VBox />
+                                                <VBox>
+                                                   <children>
+                                                      <GridPane>
+                                                         <children>
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Min slope" />
+                                                            <TextField fx:id="txtMinSlope" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setMinSlope" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Slider fx:id="sliMinSlope" majorTickUnit="1.0" max="180.0" min="1.0" minorTickCount="0" onMouseDragged="#dragMinSlope" onMouseReleased="#dragMinSlope" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                         </children>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                            <ColumnConstraints fillWidth="false" minWidth="10.0" prefWidth="100.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                      </GridPane>
+                                                      <GridPane>
+                                                         <children>
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Max slope" />
+                                                            <TextField fx:id="txtMaxSlope" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setMaxSlope" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Slider fx:id="sliMaxSlope" majorTickUnit="1.0" max="180.0" min="1.0" minorTickCount="0" onMouseDragged="#dragMaxSlope" onMouseReleased="#dragMaxSlope" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                         </children>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                            <ColumnConstraints fillWidth="false" minWidth="10.0" prefWidth="100.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                      </GridPane>
+                                                      <GridPane>
+                                                         <children>
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Min alpha" />
+                                                            <TextField fx:id="txtMinAlpha" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setMinAlpha" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Slider fx:id="sliMinAlpha" majorTickUnit="1.0" max="180.0" min="1.0" minorTickCount="0" onMouseDragged="#dragMinAlpha" onMouseReleased="#dragMinAlpha" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                         </children>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                            <ColumnConstraints fillWidth="false" minWidth="10.0" prefWidth="100.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                      </GridPane>
+                                                      <GridPane>
+                                                         <children>
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Max alpha" />
+                                                            <TextField fx:id="txtMaxAlpha" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setMaxAlpha" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Slider fx:id="sliMaxAlpha" majorTickUnit="1.0" max="180.0" min="1.0" minorTickCount="0" onMouseDragged="#dragMaxAlpha" onMouseReleased="#dragMaxAlpha" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                         </children>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                            <ColumnConstraints fillWidth="false" minWidth="10.0" prefWidth="100.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                      </GridPane>
+                                                      <GridPane>
+                                                         <children>
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Alpha variance" />
+                                                            <TextField fx:id="txtAlphaVariance" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setAlphaVariance" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Slider fx:id="sliAlphaVariance" majorTickUnit="1.0" max="15.0" min="1.0" minorTickCount="0" onMouseDragged="#dragAlphaVariance" onMouseReleased="#dragAlphaVariance" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                         </children>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                            <ColumnConstraints fillWidth="false" minWidth="10.0" prefWidth="100.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                      </GridPane>
+                                                      <GridPane>
+                                                         <children>
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Frame window" />
+                                                            <TextField fx:id="txtFrameWindow" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setFrameWindow" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Slider fx:id="sliFrameWindow" majorTickUnit="1.0" max="10.0" min="1.0" minorTickCount="0" onMouseDragged="#dragFrameWindow" onMouseReleased="#dragFrameWindow" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                         </children>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                            <ColumnConstraints fillWidth="false" minWidth="10.0" prefWidth="100.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                      </GridPane>
+                                                   </children>
+                                                </VBox>
                                              </content>
                                           </TitledPane>
                                           <TitledPane expanded="false" text="Display">
@@ -421,7 +514,7 @@
                                                       <GridPane>
                                                          <children>
                                                             <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Borders" />
-                                                            <CheckBox fx:id="chkBorders" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <CheckBox fx:id="chkBorders" mnemonicParsing="false" onAction="#processAndShowFrame" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -434,7 +527,7 @@
                                                       <GridPane>
                                                          <children>
                                                             <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Detected segments" />
-                                                            <CheckBox fx:id="chkDetectedSegments" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <CheckBox fx:id="chkDetectedSegments" mnemonicParsing="false" onAction="#processAndShowFrame" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -447,7 +540,7 @@
                                                       <GridPane>
                                                          <children>
                                                             <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Chosen segments" />
-                                                            <CheckBox fx:id="chkChosenSegments" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <CheckBox fx:id="chkChosenSegments" mnemonicParsing="false" onAction="#processAndShowFrame" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -460,7 +553,7 @@
                                                       <GridPane>
                                                          <children>
                                                             <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Stripes" />
-                                                            <CheckBox fx:id="chkStripes" mnemonicParsing="false" selected="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <CheckBox fx:id="chkStripes" mnemonicParsing="false" onAction="#processAndShowFrame" selected="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -473,7 +566,7 @@
                                                       <GridPane>
                                                          <children>
                                                             <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Lane" />
-                                                            <CheckBox fx:id="chkLane" mnemonicParsing="false" selected="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <CheckBox fx:id="chkLane" mnemonicParsing="false" onAction="#processAndShowFrame" selected="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -486,7 +579,7 @@
                                                       <GridPane>
                                                          <children>
                                                             <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Center" />
-                                                            <CheckBox fx:id="chkCenter" mnemonicParsing="false" selected="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <CheckBox fx:id="chkCenter" mnemonicParsing="false" onAction="#processAndShowFrame" selected="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
