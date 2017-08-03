@@ -1,6 +1,8 @@
 package laneassist;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -43,6 +45,29 @@ import javafx.stage.Stage;
 import laneassist.utils.Utils;
 
 public class Controller {
+	
+	private final Double ROI_WIDTH = 120.0;
+	private final Double ROI_HEIGHT = 35.0;
+	
+	private final int DEFAULT_BLUR = 3;
+	private final int DEFAULT_CANNY_THRESHOLD = 27;
+	private final int DEFAULT_CANNY_RATIO = 3;
+	private final int DEFAULT_APERTURE_SIZE = 3;
+	
+	private final int DEFAULT_HOUGH_RHO = 1;
+	private final int DEFAULT_HOUGH_THETA = 180;
+	private final int DEFAULT_HOUGH_THRESHOLD = 30;
+	private final int DEFAULT_MIN_LENGHT = 30;
+	private final int DEFAULT_MAX_GAP = 5;
+	
+	private final int DEFAULT_MIN_SLOPE = 10;
+	private final int DEFAULT_MAX_SLOPE = 120;
+	private final int DEFAULT_MIN_ALPHA = 70;
+	private final int DEFAULT_MAX_ALPHA = 120;
+	private final int DEFAULT_ALPHA_VARIANCE = 3;
+	private final int DEFAULT_FRAME_WINDOW = 3;
+	private final int DEFAULT_NO_FRAME_WINDOW = 50;
+	
 	@FXML
 	private CheckMenuItem menuItemShowDebug;
 	@FXML
@@ -85,11 +110,11 @@ public class Controller {
 	private SplitPane mainSplitPane;
 	@FXML
 	private Label lblSpeed;
-	
-	//Debug	
+
+	// Debug
 	@FXML
 	private ScrollPane debugScrollPane;
-	
+
 	@FXML
 	private Slider sliCannyThreshold;
 	@FXML
@@ -104,7 +129,7 @@ public class Controller {
 	private TextField txtBlur;
 	@FXML
 	private ComboBox<Integer> cmbApertureSize;
-	
+
 	@FXML
 	private Slider sliHoughRho;
 	@FXML
@@ -125,7 +150,7 @@ public class Controller {
 	private Slider sliMaxGap;
 	@FXML
 	private TextField txtMaxGap;
-	
+
 	@FXML
 	private Slider sliMinSlope;
 	@FXML
@@ -154,7 +179,6 @@ public class Controller {
 	private Slider sliNoFrameWindow;
 	@FXML
 	private TextField txtNoFrameWindow;
-	
 	@FXML
 	private CheckBox chkBorders;
 	@FXML
@@ -166,57 +190,30 @@ public class Controller {
 	@FXML
 	private CheckBox chkLane;
 	@FXML
-	private CheckBox chkCenter;
-	
+	private CheckBox chkROI;
+
 	private Stage stage;
 	private Node debugPane;
-	
 	private Image playImg;
 	private Image pauseImg;
 
-	private final Double ROI_WIDTH = 120.0;
-	private final Double ROI_HEIGHT = 35.0;
-	
-	private final int DEFAULT_BLUR = 3;
-	private final int DEFAULT_CANNY_THRESHOLD = 27;
-	private final int DEFAULT_CANNY_RATIO = 3;
-	private final int DEFAULT_APERTURE_SIZE = 3;
-	
-	private final int DEFAULT_HOUGH_RHO = 1;
-	private final int DEFAULT_HOUGH_THETA = 180;
-	private final int DEFAULT_HOUGH_THRESHOLD = 30;
-	private final int DEFAULT_MIN_LENGHT = 30;
-	private final int DEFAULT_MAX_GAP = 5;
-	
-	private final int DEFAULT_MIN_SLOPE = 10;
-	private final int DEFAULT_MAX_SLOPE = 120;
-	private final int DEFAULT_MIN_ALPHA = 70;
-	private final int DEFAULT_MAX_ALPHA = 120;
-	private final int DEFAULT_ALPHA_VARIANCE = 3;
-	private final int DEFAULT_FRAME_WINDOW = 3;
-	private final int DEFAULT_NO_FRAME_WINDOW = 50;
-
 	private Insets spROIPadding;
-	private Double hPaddingMax;
-	private Double vPaddingMax;
-	private Double curROIPaneWidth;
-	private Double curROIPaneHeight;
-	private Double frameWidth;
-	private Double frameHeight;
-	private Double frameCount;
+	private double hPaddingMax;
+	private double vPaddingMax;
+	private double curROIPaneWidth;
+	private double curROIPaneHeight;
+	private double frameWidth;
+	private double frameHeight;
+	private Point leftTopPointROI;
+	private Point rightBottomPointROI;
+	private Rect roi;
 
 	private ScheduledExecutorService timer;
 	private ScheduledFuture<?> future;
-	private VideoCapture capture = new VideoCapture();
-	private int speedMultiplier = 1;
-
-	private Point leftTopPointROI;
-	private Point rightBottomPointROI;
-
+	private VideoCapture capture = new VideoCapture();	
 	private Runnable frameGrabber;
+	private Mat currentFrame;
 
-	private Rect roi;
-	
 	private Point[] lastLeftStripe;
 	private Point[] lastRightStripe;
 	private double lastAlpha;
@@ -228,11 +225,10 @@ public class Controller {
 	private double[] red;
 	private double[] green;
 	private double roiCenter;
-	
+
 	private int frameCounter;
-	
-	private Mat currentFrame;
-	
+	private float speedMultiplier;
+
 	/**
 	 * Inizializza i comandi della GUI
 	 */
@@ -242,30 +238,30 @@ public class Controller {
 		rightBottomPointROI = new Point();
 		roi = new Rect();
 		setGUIDisabled(true);
-		
-		//Debug
-		debugPane = mainSplitPane.getItems().get(1); 
-		
+
+		// Debug
+		debugPane = mainSplitPane.getItems().get(1);
+
 		txtBlur.setText(String.valueOf(DEFAULT_BLUR));
 		sliBlur.setValue(DEFAULT_BLUR);
 		txtCannyThreshold.setText(String.valueOf(DEFAULT_CANNY_THRESHOLD));
 		sliCannyThreshold.setValue(DEFAULT_CANNY_THRESHOLD);
 		txtCannyRatio.setText(String.valueOf(DEFAULT_CANNY_RATIO));
 		sliCannyRatio.setValue(DEFAULT_CANNY_RATIO);
-		cmbApertureSize.getItems().addAll(3,5,7);	
+		cmbApertureSize.getItems().addAll(3, 5, 7);
 		cmbApertureSize.setValue(DEFAULT_APERTURE_SIZE);
-		
+
 		txtHoughRho.setText(String.valueOf(DEFAULT_HOUGH_RHO));
 		sliHoughRho.setValue(DEFAULT_HOUGH_RHO);
 		txtHoughTheta.setText(String.valueOf(DEFAULT_HOUGH_THETA));
-		sliHoughTheta.setValue(DEFAULT_HOUGH_THETA);	
+		sliHoughTheta.setValue(DEFAULT_HOUGH_THETA);
 		txtHoughThreshold.setText(String.valueOf(DEFAULT_HOUGH_THRESHOLD));
 		sliHoughThreshold.setValue(DEFAULT_HOUGH_THRESHOLD);
 		txtMinLenght.setText(String.valueOf(DEFAULT_MIN_LENGHT));
 		sliMinLenght.setValue(DEFAULT_MIN_LENGHT);
 		txtMaxGap.setText(String.valueOf(DEFAULT_MAX_GAP));
 		sliMaxGap.setValue(DEFAULT_MAX_GAP);
-		
+
 		txtMinSlope.setText(String.valueOf(DEFAULT_MIN_SLOPE));
 		sliMinSlope.setValue(DEFAULT_MIN_SLOPE);
 		txtMaxSlope.setText(String.valueOf(DEFAULT_MAX_SLOPE));
@@ -285,7 +281,7 @@ public class Controller {
 			playImg = new Image("file:icons/play32x32.png");
 			pauseImg = new Image("file:icons/pause32x32.png");
 			imgPlayPause.setImage(playImg);
-			
+
 		} catch (IllegalArgumentException iae) {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Illegal Argument Exception");
@@ -296,6 +292,21 @@ public class Controller {
 		laneColor = new Scalar(0,0,0);
 		red = new double[]{0.0, 0.0, 255.0};
 		green = new double[]{0.0, 255.0, 0.0};
+	}
+	
+	private void initVideo(){
+		lastLeftStripe = new Point[2];
+		lastRightStripe = new Point[2];
+		lastLeftStripe[0] = new Point(0, roi.height);
+		lastLeftStripe[1] = new Point(0, 0);
+		lastRightStripe[0] = new Point(roi.width, 0);
+		lastRightStripe[1] = new Point(roi.width, roi.height);
+		lastAlpha = Math.toRadians(90);
+		laneFrameCount = 0;
+		fillLane = false;
+
+		frameCounter = -1;
+		speedMultiplier = 1;
 	}
 
 	/**
@@ -322,8 +333,8 @@ public class Controller {
 				lblFileName.setText(video.getName());
 				frameWidth = capture.get(Videoio.CAP_PROP_FRAME_WIDTH);
 				frameHeight = capture.get(Videoio.CAP_PROP_FRAME_HEIGHT);
-				frameCount = capture.get(Videoio.CAP_PROP_FRAME_COUNT);
-				System.out.println("frameCount = " + frameCount);
+//				double frameCount = capture.get(Videoio.CAP_PROP_FRAME_COUNT);
+//				System.out.println("frameCount = " + frameCount);
 				setGUIDisabled(false);
 				computeROIDimension();
 				computePointsForROI();
@@ -340,18 +351,16 @@ public class Controller {
 				fillLane = false;
 				
 				frameCounter = 0;
-				
+
+				initVideo();
+
 				frameGrabber = new Runnable() {
 
 					@Override
 					public void run() {
 						currentFrame = grabFrame();
-						if (currentFrame != null) {							
-							showInfo();	
-							processAndShowFrame();
-						} else {
-							setClosed();
-						}
+						processAndShowFrame();
+						showInfo();
 					}
 				};
 
@@ -376,23 +385,23 @@ public class Controller {
 	@FXML
 	private void checkMenuItemDebug() {
 		if (menuItemShowDebug.isSelected()) {
-			mainSplitPane.getItems().add(1, debugPane); 
+			mainSplitPane.getItems().add(1, debugPane);
 			stage.setWidth(stage.getWidth() + 235);
-			
+
 		} else {
-			mainSplitPane.getItems().remove(debugPane); 
+			mainSplitPane.getItems().remove(debugPane);
 			stage.setWidth(stage.getWidth() - 235);
 		}
 	}
-	
+
 	protected void setGUIDisabled(boolean value) {
 		paneControls.setDisable(value);
 		splitPaneDebug.setDisable(value);
-		if (value) { 
+		if (value) {
 			// schiarisco i colori del rettangolo ROI
 			rectROI.setVisible(false);
 			stackpROI.setStyle("-fx-border-color: lightgrey ;");
-		} else { 
+		} else {
 			// attivo il rettangolo azzurro e lo posiziono in base ai cursori
 			hPaddingMax = stackpROI.getWidth() - rectROI.getWidth();
 			vPaddingMax = stackpROI.getHeight() - rectROI.getHeight();
@@ -401,12 +410,12 @@ public class Controller {
 			stackpROI.setPadding(new Insets(spROIPadding.getTop(), spROIPadding.getRight(), 0.0, padding));
 			curROIPaneWidth = stackpROI.getWidth();
 			curROIPaneHeight = stackpROI.getHeight();
-			System.out.println("padding: " + padding);
+//			System.out.println("padding: " + padding);
 			rectROI.setVisible(true);
 			stackpROI.setStyle("-fx-border-color: grey ;");
 		}
 	}
-	
+
 	protected void setClosed() {
 		if (this.timer != null && !this.timer.isShutdown()) {
 			try {
@@ -419,14 +428,14 @@ public class Controller {
 				alert.showAndWait();
 			}
 		}
-		
+
 		if (capture != null && capture.isOpened()) {
 			capture.release();
 			Utils.onFXThread(currentImage.imageProperty(), null);
 		}
 
 	}
-	
+
 	/**
 	 * Ottiene un nuovo frame
 	 * 
@@ -441,7 +450,7 @@ public class Controller {
 				this.capture.read(frame);
 
 				if (frame.empty()) {
-					System.err.println("Video concluso");
+					setStop();
 					return null;
 				}
 			} catch (Exception e) {
@@ -451,38 +460,39 @@ public class Controller {
 				alert.showAndWait();
 			}
 		}
-
+		frameCounter++;
 		return frame;
 	}
-	
+
 	/**
 	 * Processa il frame corrente
 	 */
 	@FXML
 	private void processAndShowFrame() {
-		Mat frame = currentFrame.clone();
-		Mat imageROI = frame.submat(roi);
-		Mat workingROI = imageROI.clone();
+		if (currentFrame != null) {
+			Mat frame = currentFrame.clone();
+			Mat imageROI = frame.submat(roi);
+			Mat workingROI = imageROI.clone();
 
-		Imgproc.cvtColor(imageROI, workingROI, Imgproc.COLOR_BGR2GRAY);
-		Imgproc.blur(workingROI, workingROI, new Size(sliBlur.getValue(), sliBlur.getValue()));
-		Imgproc.Canny(workingROI, workingROI, sliCannyThreshold.getValue(),
-				sliCannyRatio.getValue() * sliCannyThreshold.getValue(), (int) cmbApertureSize.getValue(), false);
+			Imgproc.cvtColor(imageROI, workingROI, Imgproc.COLOR_BGR2GRAY);
+			Imgproc.blur(workingROI, workingROI, new Size(sliBlur.getValue(), sliBlur.getValue()));
+			Imgproc.Canny(workingROI, workingROI, sliCannyThreshold.getValue(),
+					sliCannyRatio.getValue() * sliCannyThreshold.getValue(), (int) cmbApertureSize.getValue(), false);
 
-		Mat lines = new Mat();
-		Imgproc.HoughLinesP(workingROI, lines, sliHoughRho.getValue(), Math.PI / sliHoughTheta.getValue(), (int) sliHoughThreshold.getValue(), 
-				sliMinLenght.getValue(), sliMaxGap.getValue());
+			Mat lines = new Mat();
+			Imgproc.HoughLinesP(workingROI, lines, sliHoughRho.getValue(), Math.PI / sliHoughTheta.getValue(),
+					(int) sliHoughThreshold.getValue(), sliMinLenght.getValue(), sliMaxGap.getValue());
 
-		// Solo due strise da disegnare, sinistra e destra
-		Point[] leftStripe = new Point[2], rightStripe = new Point[2];
-		leftStripe[0] = new Point(0, workingROI.rows());
-		leftStripe[1] = new Point(0, 0);
+			// Solo due strise da disegnare, sinistra e destra
+			Point[] leftStripe = new Point[2], rightStripe = new Point[2];
+			leftStripe[0] = new Point(0, workingROI.rows());
+			leftStripe[1] = new Point(0, 0);
 
-		rightStripe[0] = new Point(workingROI.cols(), 0);
-		rightStripe[1] = new Point(workingROI.cols(), workingROI.rows());
+			rightStripe[0] = new Point(workingROI.cols(), 0);
+			rightStripe[1] = new Point(workingROI.cols(), workingROI.rows());
 
-		double leftSlope = 0, rightSlope = 0;
-		boolean leftFound = false, rightFound = false;
+			double leftSlope = 0, rightSlope = 0;
+			boolean leftFound = false, rightFound = false;
 
 		Point center = new Point(workingROI.cols() / 2, workingROI.rows());
 		
@@ -494,9 +504,54 @@ public class Controller {
 			if (val[1] < val[3]) {
 				p1 = new Point(val[0], val[1]);
 				p2 = new Point(val[2], val[3]);
+			Point center = new Point(workingROI.cols() / 2, workingROI.rows());
+
+			for (int i = 0; i < lines.rows(); i++) {
+				double[] val = lines.get(i, 0);
+
+				// P2 come punto pi basso del segmento
+				Point p1, p2;
+				if (val[1] < val[3]) {
+					p1 = new Point(val[0], val[1]);
+					p2 = new Point(val[2], val[3]);
+				} else {
+					p1 = new Point(val[2], val[3]);
+					p2 = new Point(val[0], val[1]);
+				}
+
+				if (chkDetectedSegments.isSelected())
+					Imgproc.line(imageROI, p1, p2, new Scalar(255, 0, 255), 2);
+
+				double slope = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+
+				if (p2.x <= center.x && slope > Math.toRadians(180 - sliMaxSlope.getValue())
+						&& slope < Math.toRadians(180 - sliMinSlope.getValue())
+						&& Utils.EuclideanDistance(p2, center) < Utils.EuclideanDistance(leftStripe[0], center)) {
+					// P1  a destra del centro, ha una pendenza sensata, ed  a
+					// minor distanza dal centro rispetto a quello in memoria
+					leftStripe[0] = p1;
+					leftStripe[1] = p2;
+					leftSlope = slope;
+					leftFound = true;
+
+				} else if (p2.x > center.x && slope > Math.toRadians(sliMinSlope.getValue())
+						&& slope < Math.toRadians(sliMaxSlope.getValue())
+						&& Utils.EuclideanDistance(p2, center) < Utils.EuclideanDistance(rightStripe[0], center)) {
+					// P1  a destra del centro, ha una pendenza sensata, ed  a
+					// minor distanza dal centro rispetto a quello in memoria
+					rightStripe[0] = p1;
+					rightStripe[1] = p2;
+					rightSlope = slope;
+					rightFound = true;
+				}
+			}
+
+			double alpha = leftSlope - rightSlope;
+
+			if (Math.abs(lastAlpha - alpha) < Math.toRadians(sliAlphaVariance.getValue())) {
+				laneFrameCount++;
 			} else {
-				p1 = new Point(val[2], val[3]);
-				p2 = new Point(val[0], val[1]);
+				laneFrameCount = 0;
 			}
 			
 			if (chkDetectedSegments.isSelected())
@@ -616,26 +671,135 @@ public class Controller {
 		
 		Image imageToShow = Utils.mat2Image(frame);
 		Utils.onFXThread(currentImage.imageProperty(), imageToShow);
+
+			lastAlpha = alpha;
+
+			// Se ha trovato entrambe e insieme non formano troppo grande o
+			// troppo piccolo, e sono regolari da n frame
+			if (leftFound && rightFound && alpha > Math.toRadians(sliMinAlpha.getValue())
+					&& alpha < Math.toRadians(sliMaxAlpha.getValue())
+					&& laneFrameCount >= (int) sliFrameWindow.getValue()) {
+
+				fillLane = true;
+				lastLeftStripe[0] = leftStripe[0].clone();
+				lastLeftStripe[1] = leftStripe[1].clone();
+				lastRightStripe[0] = rightStripe[0].clone();
+				lastRightStripe[1] = rightStripe[1].clone();
+
+				// Estende i segmenti
+				double dx = Math.cos(leftSlope) * 10000;
+				double dy = Math.sin(leftSlope) * 10000;
+
+				lastLeftStripe[0].x -= dx;
+				lastLeftStripe[0].y -= dy;
+				lastLeftStripe[1].x += dx;
+				lastLeftStripe[1].y += dy;
+
+				dx = Math.cos(rightSlope) * 10000;
+				dy = Math.sin(rightSlope) * 10000;
+				lastRightStripe[0].x -= dx;
+				lastRightStripe[0].y -= dy;
+				lastRightStripe[1].x += dx;
+				lastRightStripe[1].y += dy;
+
+				Rect clipping = new Rect(Integer.MIN_VALUE / 2, 0, Integer.MAX_VALUE, workingROI.rows());
+				Imgproc.clipLine(clipping, lastLeftStripe[0], lastLeftStripe[1]);
+				Imgproc.clipLine(clipping, lastRightStripe[0], lastRightStripe[1]);
+			}
+
+			if (fillLane && chkStripes.isSelected()) {
+				Imgproc.line(imageROI, lastLeftStripe[0], lastLeftStripe[1], new Scalar(0, 255, 0), 4);
+				Imgproc.line(imageROI, lastRightStripe[0], lastRightStripe[1], new Scalar(0, 255, 0), 4);
+			}
+
+			if (fillLane && chkLane.isSelected()) {
+				MatOfPoint lane = new MatOfPoint(lastLeftStripe[0], lastLeftStripe[1], lastRightStripe[1],
+						lastRightStripe[0]);
+				Imgproc.fillConvexPoly(imageROI, lane, new Scalar(255, 0, 0));
+			}
+
+			if (leftFound && chkChosenSegments.isSelected())
+				Imgproc.line(imageROI, leftStripe[0], leftStripe[1], new Scalar(255, 255, 0), 3);
+			if (rightFound && chkChosenSegments.isSelected())
+				Imgproc.line(imageROI, rightStripe[0], rightStripe[1], new Scalar(255, 255, 0), 3);
+
+			if (chkBorders.isSelected()) {
+				Imgproc.cvtColor(workingROI, workingROI, Imgproc.COLOR_GRAY2BGR);
+				Core.addWeighted(imageROI, 1.0, workingROI, 0.7, 0.0, imageROI);
+			}
+
+			if (chkROI.isSelected()) {
+				Imgproc.rectangle(frame, leftTopPointROI, rightBottomPointROI, new Scalar(255, 255, 255), 2);
+				Imgproc.line(imageROI, center, new Point(center.x, 0), new Scalar(255, 255, 255), 2);
+			}
+
+			Image imageToShow = Utils.mat2Image(frame);
+			Utils.onFXThread(currentImage.imageProperty(), imageToShow);
+		}
 	}
-	
+
 	/**
 	 * Visualizza le informazioni sul video
 	 */
 	private void showInfo() {
-		int millis = ++frameCounter * 33;
+		int millis = frameCounter * 33;
 		int seconds = millis / 1000;
 		int minutes = (seconds / 60) % 60;
 		seconds %= 60;
 		millis %= 1000;
-		String time = String.format("%02d", minutes) + ":" + String.format("%02d", seconds) + ":" + String.format("%04d", millis);
-		
+		String time = String.format("%02d", minutes) + ":" + String.format("%02d", seconds) + ":"
+				+ String.format("%04d", millis);
+
 		Platform.runLater(() -> {
 			lblFrame.setText(Integer.toString(frameCounter));
 			lblTime.setText(time);
+			if (speedMultiplier > 0.9 && speedMultiplier < 1.1) {
+				lblSpeed.setVisible(false);
+			} else {
+				lblSpeed.setVisible(true);
+				lblSpeed.setText(new BigDecimal(speedMultiplier)
+						.setScale(3, RoundingMode.DOWN)
+						.stripTrailingZeros()
+						.toString() + "x");
+			}
 		});
 	}
-	
-	//Sezione controlli video
+
+	// Sezione controlli video
+
+	/**
+	 * Comando bottone stop
+	 */
+	@FXML
+	private void setStop() {
+		speedMultiplier = 1;
+		imgPlayPause.setImage(playImg);
+		future.cancel(false);
+		lblSpeed.setVisible(false);
+		
+		capture.set(Videoio.CAP_PROP_POS_FRAMES, 0);
+		initVideo();
+		
+		currentFrame = grabFrame();
+		processAndShowFrame();
+		showInfo();
+	}
+
+	/**
+	 * Comando bottone play/pause
+	 */
+	@FXML
+	private void setPlayPause() {
+		if (imgPlayPause.getImage().equals(playImg)) {
+			imgPlayPause.setImage(pauseImg);
+			future = timer.scheduleAtFixedRate(frameGrabber, 0, (long) (33 / speedMultiplier), TimeUnit.MILLISECONDS);
+
+		} else {
+			imgPlayPause.setImage(playImg);
+			future.cancel(false);
+			lblSpeed.setVisible(false);
+		}
+	}
 	
 	/**
 	 * Comando bottone rewind
@@ -646,28 +810,22 @@ public class Controller {
 	}
 	
 	/**
-	 * Comando bottone stop
+	 * Comando bottone previous frame
 	 */
 	@FXML
-	private void setStop() {
-
-	}
-
-	/**
-	 * Comando bottone play/pause
-	 */
-	@FXML
-	private void setPlayPause() {
-		if (imgPlayPause.getImage().equals(playImg)) {
-			imgPlayPause.setImage(pauseImg);
-			future = timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
-			
-		} else {		
-			speedMultiplier = 1;
+	private void setPreviousFrame() {
+		if (imgPlayPause.getImage().equals(pauseImg)) {
 			imgPlayPause.setImage(playImg);
 			future.cancel(false);
-			lblSpeed.setVisible(false);	
+			lblSpeed.setVisible(false);
 		}
+	
+		frameCounter -= 2;
+		capture.set(Videoio.CAP_PROP_POS_FRAMES, frameCounter);
+		
+		currentFrame = grabFrame();	
+		processAndShowFrame();
+		showInfo();
 	}
 
 	/**
@@ -676,39 +834,47 @@ public class Controller {
 	@FXML
 	private void setNextFrame() {
 		if (imgPlayPause.getImage().equals(pauseImg)) {
-			speedMultiplier = 1;
 			imgPlayPause.setImage(playImg);
 			future.cancel(false);
-			lblSpeed.setVisible(false);	
+			lblSpeed.setVisible(false);
 		}
 		
 		currentFrame = grabFrame();
-		if (currentFrame != null) {
-			showInfo();
-			processAndShowFrame();
-		} else {
-			setClosed();
-		}
+		processAndShowFrame();
+		showInfo();
 	}
 	
 	/**
-	 * Comando bottone per aumentare la velocità del video.
+	 * Comando bottone slow
 	 */
 	@FXML
-	private void setFastForward() {		
-		if (imgPlayPause.getImage().equals(playImg)) {
-			imgPlayPause.setImage(pauseImg);				
-		} 		
-		if (speedMultiplier < 32) {
-			speedMultiplier *= 2;
-			lblSpeed.setVisible(true);
-			lblSpeed.setText(speedMultiplier + "x");
-		}
+	private void setSlow() {
+		if (imgPlayPause.getImage().equals(playImg))
+			imgPlayPause.setImage(pauseImg);
+		
+		if (speedMultiplier > (float) 1 / 8)
+			speedMultiplier /= 2;
+		
 		future.cancel(false);
-		future = timer.scheduleAtFixedRate(frameGrabber, 0, (long) (33 / speedMultiplier) , TimeUnit.MILLISECONDS);
+		future = timer.scheduleAtFixedRate(frameGrabber, 0, (long) (33 / speedMultiplier), TimeUnit.MILLISECONDS);
+	}
+	
+	/**
+	 * Comando bottone fast forward
+	 */
+	@FXML
+	private void setFastForward() {
+		if (imgPlayPause.getImage().equals(playImg))
+			imgPlayPause.setImage(pauseImg);
+		
+		if (speedMultiplier < 32)
+			speedMultiplier *= 2;
+		
+		future.cancel(false);
+		future = timer.scheduleAtFixedRate(frameGrabber, 0, (long) (33 / speedMultiplier), TimeUnit.MILLISECONDS);
 	}
 
-	//Sezione ROI
+	// Sezione ROI
 
 	/**
 	 * Per disegnare il rettangolo contenente la rappresentazione della ROI, in
@@ -720,7 +886,6 @@ public class Controller {
 		int dim = (int) Math.round(stackpROI.getWidth() * frameHeight / frameWidth);
 		stackpROI.setPrefHeight(dim);
 		stackpROI.setMaxHeight(dim);
-		System.out.println("dim: " + stackpROI.getWidth() + " * " + frameHeight + " / " + frameWidth + " = " + dim);
 	}
 
 	/**
@@ -734,13 +899,11 @@ public class Controller {
 		leftTopPointROI.y = y - Math.round(frameHeight * rectROI.getHeight() / stackpROI.getHeight());
 		rightBottomPointROI.x = x + Math.round(frameWidth * rectROI.getWidth() / stackpROI.getWidth());
 		rightBottomPointROI.y = y;
-		// il rettangolo viene disegnato a partire da top-left del frame, che è
-		// 0,0
-		// Imgproc.rectangle(frame, leftTopPointROI, rightBottomPointROI, new
-		// Scalar(0,0,255), 3);
 		roi = new Rect(leftTopPointROI, rightBottomPointROI);
+		
+		processAndShowFrame();
 	}
-	
+
 	/**
 	 * Comando slider che aumenta/diminuisce la larghezza della Region of
 	 * Interest (rettangolo azzurrino).
@@ -869,247 +1032,247 @@ public class Controller {
 		imgMoveROIUpDown.setVisible(false);
 		rectROI.setVisible(true);
 	}
-	
+
 	// Sezione Canny
-	
+
 	@FXML
 	private void dragBlur() {
 		int value = (int) sliBlur.getValue();
 		txtBlur.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void setBlur() {
 		String text = txtBlur.getText();
-		if (text.matches("\\d*|\\d*\\.\\d")) {								
+		if (text.matches("\\d*|\\d*\\.\\d")) {
 			sliBlur.setValue(Integer.valueOf(text));
 		}
-		txtBlur.setText(String.valueOf((int) sliBlur.getValue()));	
+		txtBlur.setText(String.valueOf((int) sliBlur.getValue()));
 		processAndShowFrame();
-	}	
-	
+	}
+
 	@FXML
 	private void dragCannyThreshold() {
 		int value = (int) sliCannyThreshold.getValue();
 		txtCannyThreshold.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void setCannyThreshold() {
 		String text = txtCannyThreshold.getText();
-		if (text.matches("\\d*")) {								
+		if (text.matches("\\d*")) {
 			sliCannyThreshold.setValue(Integer.valueOf(text));
 		}
-		txtCannyThreshold.setText(String.valueOf((int) sliCannyThreshold.getValue()));		
+		txtCannyThreshold.setText(String.valueOf((int) sliCannyThreshold.getValue()));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void dragCannyRatio() {
 		int value = (int) sliCannyRatio.getValue();
 		txtCannyRatio.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void setCannyRatio() {
 		String text = txtCannyRatio.getText();
-		if (text.matches("\\d*|\\d*\\.\\d")) {								
+		if (text.matches("\\d*|\\d*\\.\\d")) {
 			sliCannyRatio.setValue(Integer.valueOf(text));
 		}
-		txtCannyRatio.setText(String.valueOf((int) sliCannyRatio.getValue()));		
+		txtCannyRatio.setText(String.valueOf((int) sliCannyRatio.getValue()));
 		processAndShowFrame();
 	}
-	
-	//Sezione Hough
-	
+
+	// Sezione Hough
+
 	@FXML
 	private void dragHoughRho() {
 		int value = (int) sliHoughRho.getValue();
 		txtHoughRho.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void setHoughRho() {
 		String text = txtHoughRho.getText();
-		if (text.matches("\\d*|\\d*\\.\\d")) {								
+		if (text.matches("\\d*|\\d*\\.\\d")) {
 			sliHoughRho.setValue(Integer.valueOf(text));
 		}
-		txtHoughRho.setText(String.valueOf((int) sliHoughRho.getValue()));		
+		txtHoughRho.setText(String.valueOf((int) sliHoughRho.getValue()));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void dragHoughTheta() {
 		int value = (int) sliHoughTheta.getValue();
 		txtHoughTheta.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void setHoughTheta() {
 		String text = txtHoughTheta.getText();
-		if (text.matches("\\d*|\\d*\\.\\d")) {								
+		if (text.matches("\\d*|\\d*\\.\\d")) {
 			sliHoughTheta.setValue(Integer.valueOf(text));
 		}
-		txtHoughTheta.setText(String.valueOf((int) sliHoughTheta.getValue()));		
+		txtHoughTheta.setText(String.valueOf((int) sliHoughTheta.getValue()));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void dragHoughThreshold() {
 		int value = (int) sliHoughThreshold.getValue();
 		txtHoughThreshold.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void setHoughThreshold() {
 		String text = txtHoughThreshold.getText();
-		if (text.matches("\\d*|\\d*\\.\\d")) {								
+		if (text.matches("\\d*|\\d*\\.\\d")) {
 			sliHoughThreshold.setValue(Integer.valueOf(text));
 		}
-		txtHoughThreshold.setText(String.valueOf((int) sliHoughThreshold.getValue()));		
+		txtHoughThreshold.setText(String.valueOf((int) sliHoughThreshold.getValue()));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void dragMinLenght() {
 		int value = (int) sliMinLenght.getValue();
 		txtMinLenght.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void setMinLenght() {
 		String text = txtMinLenght.getText();
-		if (text.matches("\\d*|\\d*\\.\\d")) {								
+		if (text.matches("\\d*|\\d*\\.\\d")) {
 			sliMinLenght.setValue(Integer.valueOf(text));
 		}
-		txtMinLenght.setText(String.valueOf((int) sliMinLenght.getValue()));	
+		txtMinLenght.setText(String.valueOf((int) sliMinLenght.getValue()));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void dragMaxGap() {
 		int value = (int) sliMaxGap.getValue();
 		txtMaxGap.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void setMaxGap() {
 		String text = txtMaxGap.getText();
-		if (text.matches("\\d*|\\d*\\.\\d")) {								
+		if (text.matches("\\d*|\\d*\\.\\d")) {
 			sliMaxGap.setValue(Integer.valueOf(text));
 		}
-		txtMaxGap.setText(String.valueOf((int) sliMaxGap.getValue()));	
+		txtMaxGap.setText(String.valueOf((int) sliMaxGap.getValue()));
 		processAndShowFrame();
 	}
-	
-	//Sezione Constraints
+
+	// Sezione Constraints
 	@FXML
 	private void dragMinSlope() {
 		int value = (int) sliMinSlope.getValue();
 		txtMinSlope.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void setMinSlope() {
 		String text = txtMinSlope.getText();
-		if (text.matches("\\d*|\\d*\\.\\d")) {								
+		if (text.matches("\\d*|\\d*\\.\\d")) {
 			sliMinSlope.setValue(Integer.valueOf(text));
 		}
-		txtMinSlope.setText(String.valueOf((int) sliMinSlope.getValue()));	
+		txtMinSlope.setText(String.valueOf((int) sliMinSlope.getValue()));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void dragMaxSlope() {
 		int value = (int) sliMaxSlope.getValue();
 		txtMaxSlope.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void setMaxSlope() {
 		String text = txtMaxSlope.getText();
-		if (text.matches("\\d*|\\d*\\.\\d")) {								
+		if (text.matches("\\d*|\\d*\\.\\d")) {
 			sliMaxSlope.setValue(Integer.valueOf(text));
 		}
-		txtMaxSlope.setText(String.valueOf((int) sliMaxSlope.getValue()));	
+		txtMaxSlope.setText(String.valueOf((int) sliMaxSlope.getValue()));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void dragMinAlpha() {
 		int value = (int) sliMinAlpha.getValue();
 		txtMinAlpha.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void setMinAlpha() {
 		String text = txtMinAlpha.getText();
-		if (text.matches("\\d*|\\d*\\.\\d")) {								
+		if (text.matches("\\d*|\\d*\\.\\d")) {
 			sliMinAlpha.setValue(Integer.valueOf(text));
 		}
-		txtMinAlpha.setText(String.valueOf((int) sliMinAlpha.getValue()));	
+		txtMinAlpha.setText(String.valueOf((int) sliMinAlpha.getValue()));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void dragMaxAlpha() {
 		int value = (int) sliMaxAlpha.getValue();
 		txtMaxAlpha.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void setMaxAlpha() {
 		String text = txtMaxAlpha.getText();
-		if (text.matches("\\d*|\\d*\\.\\d")) {								
+		if (text.matches("\\d*|\\d*\\.\\d")) {
 			sliMaxAlpha.setValue(Integer.valueOf(text));
 		}
-		txtMaxAlpha.setText(String.valueOf((int) sliMaxAlpha.getValue()));	
+		txtMaxAlpha.setText(String.valueOf((int) sliMaxAlpha.getValue()));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void dragAlphaVariance() {
 		int value = (int) sliAlphaVariance.getValue();
 		txtAlphaVariance.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void setAlphaVariance() {
 		String text = txtAlphaVariance.getText();
-		if (text.matches("\\d*|\\d*\\.\\d")) {								
+		if (text.matches("\\d*|\\d*\\.\\d")) {
 			sliAlphaVariance.setValue(Integer.valueOf(text));
 		}
-		txtAlphaVariance.setText(String.valueOf((int) sliAlphaVariance.getValue()));	
+		txtAlphaVariance.setText(String.valueOf((int) sliAlphaVariance.getValue()));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void dragFrameWindow() {
 		int value = (int) sliFrameWindow.getValue();
 		txtFrameWindow.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
 	private void setFrameWindow() {
 		String text = txtFrameWindow.getText();
-		if (text.matches("\\d*|\\d*\\.\\d")) {								
+		if (text.matches("\\d*|\\d*\\.\\d")) {
 			sliFrameWindow.setValue(Integer.valueOf(text));
 		}
-		txtFrameWindow.setText(String.valueOf((int) sliFrameWindow.getValue()));	
+		txtFrameWindow.setText(String.valueOf((int) sliFrameWindow.getValue()));
 		processAndShowFrame();
 	}
 	

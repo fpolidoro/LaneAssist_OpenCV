@@ -111,20 +111,38 @@
                                     <Label fx:id="lblFrame" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                  </children>
                                  <HBox.margin>
-                                    <Insets bottom="10.0" left="20.0" right="30.0" top="10.0" />
+                                    <Insets bottom="10.0" left="20.0" right="10.0" top="10.0" />
                                  </HBox.margin>
                                  <padding>
                                     <Insets right="20.0" />
                                  </padding>
                               </GridPane>
                               <Button fx:id="btnRewind" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#setRewind" prefHeight="40.0" prefWidth="40.0" style="-fx-background-radius: 5em;">
+                                 <graphic>
+                                    <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../../icons/rewind24x24.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                              </Button>
+                              <Button fx:id="btnSlow" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#setSlow" prefHeight="40.0" prefWidth="40.0" style="-fx-background-radius: 5em;">
                                  <HBox.margin>
                                     <Insets />
                                  </HBox.margin>
                                  <graphic>
                                     <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
-                                          <Image url="@../../icons/rewind24x24.png" />
+                                          <Image url="@../../icons/slow24x24.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                              </Button>
+                              <Button fx:id="btnPreviousFrame" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#setPreviousFrame" prefHeight="40.0" prefWidth="40.0" style="-fx-background-radius: 5em;">
+                                 <graphic>
+                                    <ImageView fitHeight="20.0" fitWidth="20.0" nodeOrientation="RIGHT_TO_LEFT" pickOnBounds="true" preserveRatio="true" rotate="180.0">
+                                       <image>
+                                          <Image url="@../../icons/back24x24.png" />
                                        </image>
                                     </ImageView>
                                  </graphic>
@@ -312,7 +330,7 @@
                                                       <GridPane>
                                                          <children>
                                                             <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Aperture size" />
-                                                            <ComboBox fx:id="cmbApertureSize" visibleRowCount="3" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <ComboBox fx:id="cmbApertureSize" onAction="#processAndShowFrame" visibleRowCount="3" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -593,8 +611,8 @@
                                                       </GridPane>
                                                       <GridPane>
                                                          <children>
-                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Center" />
-                                                            <CheckBox fx:id="chkCenter" mnemonicParsing="false" onAction="#processAndShowFrame" selected="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="ROI" />
+                                                            <CheckBox fx:id="chkROI" mnemonicParsing="false" onAction="#processAndShowFrame" selected="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
