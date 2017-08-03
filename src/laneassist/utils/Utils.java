@@ -59,11 +59,4 @@ public final class Utils
 	public static double EuclideanDistance(Point p1, Point p2) {
 		return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
 	}
-<<<<<<< HEAD
-=======
-	
-	public static double Clamp(double min, double max, double x) {
-		return Math.max(max, Math.min(min, x));
-	}
->>>>>>> origin/master
 }

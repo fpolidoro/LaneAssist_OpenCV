@@ -1,7 +1,6 @@
 package laneassist;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -31,27 +30,16 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
-<<<<<<< HEAD
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-=======
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
->>>>>>> origin/master
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-<<<<<<< HEAD
 import javafx.stage.Stage;
-=======
->>>>>>> origin/master
 import laneassist.utils.Utils;
 
 public class Controller {
@@ -197,12 +185,9 @@ public class Controller {
 	private double lastAlpha;
 	private int laneFrameCount;
 	private boolean fillLane;
-<<<<<<< HEAD
 	
 	private int frameCounter;
 	
-=======
->>>>>>> origin/master
 
 	/**
 	 * Inizializza i comandi della GUI
@@ -213,7 +198,6 @@ public class Controller {
 		rightBottomPointROI = new Point();
 		roi = new Rect();
 		setGUIDisabled(true);
-<<<<<<< HEAD
 		
 		//Debug
 		debugPane = mainSplitPane.getItems().get(1); 
@@ -243,15 +227,6 @@ public class Controller {
 			pauseImg = new Image("file:icons/pause32x32.png");
 			imgPlayPause.setImage(playImg);
 			
-=======
-		lblCannyThreshold.setText(String.valueOf(sliCannyThreshold.getValue()));
-		try {
-			playImg = new Image("file:icons/play32x32.png");
-			pauseImg = new Image("file:icons/pause32x32.png");
-			// btnPlayPause.setGraphic(imgPlayPause);
-			// imposto le img per play e pause sul toggle button
-			imgPlayPause.setImage(playImg);
->>>>>>> origin/master
 		} catch (IllegalArgumentException iae) {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Illegal Argument Exception");
@@ -300,11 +275,8 @@ public class Controller {
 				laneFrameCount = 0;
 				fillLane = false;
 				
-<<<<<<< HEAD
 				frameCounter = 0;
 				
-=======
->>>>>>> origin/master
 				frameGrabber = new Runnable() {
 
 					@Override
@@ -342,7 +314,6 @@ public class Controller {
 
 	@FXML
 	private void checkMenuItemDebug() {
-<<<<<<< HEAD
 		if (menuItemShowDebug.isSelected()) {
 			mainSplitPane.getItems().add(1, debugPane); 
 			stage.setWidth(stage.getWidth() + 243);
@@ -351,12 +322,6 @@ public class Controller {
 			mainSplitPane.getItems().remove(debugPane); 
 			stage.setWidth(stage.getWidth() - 243);
 		}
-=======
-		if (menuItemShowDebug.isSelected())
-			gridPaneDebug.setVisible(true);
-		else
-			gridPaneDebug.setVisible(false);
->>>>>>> origin/master
 	}
 
 	/**
@@ -494,18 +459,10 @@ public class Controller {
 	 * Comando bottone rewind
 	 */
 	@FXML
-<<<<<<< HEAD
 	private void setRewind() {
 
-=======
-	private void dragVideoSpeed() {
-		if (!future.isCancelled()) {
-			future.cancel(false);
-			future = timer.scheduleAtFixedRate(frameGrabber, 0, (long) (33 / sliVideoSpeed.getValue()), TimeUnit.MILLISECONDS);
-		}
->>>>>>> origin/master
 	}
-
+	
 	/**
 	 * Comando bottone stop
 	 */
@@ -518,7 +475,6 @@ public class Controller {
 	 * Comando bottone play/pause
 	 */
 	@FXML
-<<<<<<< HEAD
 	private void setPlayPause() {
 		if (imgPlayPause.getImage().equals(playImg)) {
 			imgPlayPause.setImage(pauseImg);
@@ -526,16 +482,6 @@ public class Controller {
 			
 		} else {		
 			speedMultiplier = 1;
-=======
-	private void clickBtnPlayPause() {
-		// se l'img corrente è play, allora ero in pausa del video e devo farlo
-		// ripartire
-		if (imgPlayPause.getImage().equals(playImg)) {
-			imgPlayPause.setImage(pauseImg);
-			future = timer.scheduleAtFixedRate(frameGrabber, 0, (long) (33 / sliVideoSpeed.getValue()), TimeUnit.MILLISECONDS);
-		} else { // l'img corrente è pause, quindi devo mettere in pausa il
-					// video
->>>>>>> origin/master
 			imgPlayPause.setImage(playImg);
 			future.cancel(false);
 			lblSpeed.setVisible(false);	
@@ -546,7 +492,6 @@ public class Controller {
 	 * Comando bottone next frame
 	 */
 	@FXML
-<<<<<<< HEAD
 	private void setNextFrame() {
 		if (imgPlayPause.getImage().equals(pauseImg)) {
 			speedMultiplier = 1;
@@ -564,17 +509,12 @@ public class Controller {
 		} else {
 			setClosed();
 		}
-=======
-	private void clickBtnRewind() {
-
->>>>>>> origin/master
 	}
-
+	
 	/**
 	 * Comando bottone per aumentare la velocità del video.
 	 */
 	@FXML
-<<<<<<< HEAD
 	private void setFastForward() {		
 		if (imgPlayPause.getImage().equals(playImg)) {
 			imgPlayPause.setImage(pauseImg);				
@@ -586,10 +526,6 @@ public class Controller {
 		}
 		future.cancel(false);
 		future = timer.scheduleAtFixedRate(frameGrabber, 0, (long) (33 / speedMultiplier) , TimeUnit.MILLISECONDS);
-=======
-	private void clickBtnForward() {
-
->>>>>>> origin/master
 	}
 	
 	//Debug
@@ -815,31 +751,18 @@ public class Controller {
 				this.capture.read(frame);
 
 				if (!frame.empty()) {
-<<<<<<< HEAD
-=======
-					// System.out.println("frame " + count++);
->>>>>>> origin/master
 
 					Mat imageROI = frame.submat(roi);
 					Mat workingROI = imageROI.clone();
 
 					Imgproc.cvtColor(imageROI, workingROI, Imgproc.COLOR_BGR2GRAY);
 					// Imgproc.equalizeHist(workingROI, workingROI);
-<<<<<<< HEAD
 					Imgproc.blur(workingROI, workingROI, new Size(sliBlur.getValue(), sliBlur.getValue()));
 
 					// Canny
 					Imgproc.Canny(workingROI, workingROI, sliCannyThreshold.getValue(),
 							sliCannyRatio.getValue() * sliCannyThreshold.getValue(), (int) cmbApertureSize.getValue(), false);
 					
-=======
-					Imgproc.blur(workingROI, workingROI, new Size(3, 3));
-
-					// Canny
-					Imgproc.Canny(workingROI, workingROI, sliCannyThreshold.getValue(),
-							3 * sliCannyThreshold.getValue(), 3, false);
-
->>>>>>> origin/master
 					// AdaptiveThreshold (meglio con equalizzazione)
 					// Imgproc.adaptiveThreshold(workingROI, workingROI, 240,
 					// Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C,
@@ -847,12 +770,8 @@ public class Controller {
 
 					// Hough
 					Mat lines = new Mat();
-<<<<<<< HEAD
 					Imgproc.HoughLinesP(workingROI, lines, sliHoughRho.getValue(), Math.PI / sliHoughTheta.getValue(), (int) sliHoughThreshold.getValue(), 
 							sliMinLenght.getValue(), sliMaxGap.getValue());
-=======
-					Imgproc.HoughLinesP(workingROI, lines, 1, Math.PI / 180, 30, 30, 5);
->>>>>>> origin/master
 
 					// Solo due strise da disegnare, sinistra e destra
 					Point[] leftStripe = new Point[2], rightStripe = new Point[2];
@@ -879,16 +798,10 @@ public class Controller {
 							p1 = new Point(val[2], val[3]);
 							p2 = new Point(val[0], val[1]);
 						}
-<<<<<<< HEAD
 						
 						if (chkDetectedSegments.isSelected())
 							Imgproc.line(imageROI, p1, p2, new Scalar(255, 0, 255), 4);
 												
-=======
-						Imgproc.line(imageROI, p1, p2, new Scalar(255, 0, 255), 4);
-						
-						
->>>>>>> origin/master
 						double slope = Math.atan2(p2.y - p1.y, p2.x - p1.x);
 
 						if (p2.x <= center.x && slope > Math.toRadians(60) && slope < Math.toRadians(170)
@@ -911,16 +824,11 @@ public class Controller {
 									
 					double alpha = leftSlope - rightSlope;
 					
-<<<<<<< HEAD
 					if (Math.abs(lastAlpha - alpha) < Math.toRadians(3)) {				
-=======
-					if (Math.abs(lastAlpha - alpha) < Math.toRadians(5)) {				
->>>>>>> origin/master
 						laneFrameCount++;
 					} else {
 						laneFrameCount = 0;
 					}
-<<<<<<< HEAD
 					
 					lastAlpha = alpha;
 					
@@ -932,17 +840,6 @@ public class Controller {
 						lastLeftStripe[1] = leftStripe[1].clone();
 						lastRightStripe[0] = rightStripe[0].clone();
 						lastRightStripe[1] = rightStripe[1].clone();
-=======
-					
-					lastAlpha = alpha;
-					
-					// Se ha trovato entrambe e insieme non formano troppo grande o troppo piccolo, e sono regolari da n frame
-					if (leftFound && rightFound && alpha > Math.toRadians(70) && alpha < Math.toRadians(110) && laneFrameCount >= 3) {					
-						
-						fillLane = true;
-						lastLeftStripe = leftStripe.clone();
-						lastRightStripe = rightStripe.clone();
->>>>>>> origin/master
 						
 						// Estende i segmenti
 						double dx = Math.cos(leftSlope) * 10000;				
@@ -965,24 +862,16 @@ public class Controller {
 						Imgproc.clipLine(clipping, lastRightStripe[0], lastRightStripe[1]);
 					}
 
-<<<<<<< HEAD
 					if (chkStripes.isSelected()) {
 						Imgproc.line(imageROI, lastLeftStripe[0], lastLeftStripe[1], new Scalar(0, 0, 255), 4);
 						Imgproc.line(imageROI, lastRightStripe[0], lastRightStripe[1], new Scalar(0, 0, 255), 4);
 					}
 
 					if (fillLane && chkLane.isSelected()){
-=======
-					Imgproc.line(imageROI, lastLeftStripe[0], lastLeftStripe[1], new Scalar(0, 0, 255), 4);
-					Imgproc.line(imageROI, lastRightStripe[0], lastRightStripe[1], new Scalar(0, 0, 255), 4);
-					
-					if (fillLane){
->>>>>>> origin/master
 						MatOfPoint lane = new MatOfPoint(lastLeftStripe[0], lastLeftStripe[1], lastRightStripe[1], lastRightStripe[0]);
 						Imgproc.fillConvexPoly(imageROI, lane, new Scalar(255, 0, 0));
 					}
 					
-<<<<<<< HEAD
 					if (leftFound && chkChosenSegments.isSelected()) Imgproc.line(imageROI, leftStripe[0], leftStripe[1], new Scalar(0, 255, 0), 4);
 					if (rightFound && chkChosenSegments.isSelected()) Imgproc.line(imageROI, rightStripe[0], rightStripe[1], new Scalar(0, 255, 0), 4);
 										
@@ -994,16 +883,6 @@ public class Controller {
 						Core.addWeighted(imageROI, 1.0, workingROI, 0.7, 0.0, imageROI);
 					}
 					
-=======
-					if (leftFound) Imgproc.line(imageROI, leftStripe[0], leftStripe[1], new Scalar(0, 255, 0), 6);
-					if (rightFound) Imgproc.line(imageROI, rightStripe[0], rightStripe[1], new Scalar(0, 255, 0), 6);
-										
-					Imgproc.line(imageROI, center, new Point(center.x, 0), new Scalar(0, 255, 255), 4);
-			
-					Imgproc.cvtColor(workingROI, workingROI, Imgproc.COLOR_GRAY2BGR);
-					Core.addWeighted(imageROI, 1.0, workingROI, 0.7, 0.0, imageROI);
-
->>>>>>> origin/master
 				} else {
 					System.err.println("Video concluso");
 					return null;
