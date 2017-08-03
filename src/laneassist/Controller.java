@@ -150,6 +150,10 @@ public class Controller {
 	private Slider sliFrameWindow;
 	@FXML
 	private TextField txtFrameWindow;
+	@FXML
+	private Slider sliNoFrameWindow;
+	@FXML
+	private TextField txtNoFrameWindow;
 	
 	@FXML
 	private CheckBox chkBorders;
@@ -190,6 +194,7 @@ public class Controller {
 	private final int DEFAULT_MAX_ALPHA = 120;
 	private final int DEFAULT_ALPHA_VARIANCE = 3;
 	private final int DEFAULT_FRAME_WINDOW = 3;
+	private final int DEFAULT_NO_FRAME_WINDOW = 50;
 
 	private Insets spROIPadding;
 	private Double hPaddingMax;
@@ -216,7 +221,13 @@ public class Controller {
 	private Point[] lastRightStripe;
 	private double lastAlpha;
 	private int laneFrameCount;
+	private int noLaneFrameCount;
 	private boolean fillLane;
+	
+	private Scalar laneColor;
+	private double[] red;
+	private double[] green;
+	private double roiCenter;
 	
 	private int frameCounter;
 	
@@ -267,6 +278,8 @@ public class Controller {
 		sliAlphaVariance.setValue(DEFAULT_ALPHA_VARIANCE);
 		txtFrameWindow.setText(String.valueOf(DEFAULT_FRAME_WINDOW));
 		sliFrameWindow.setValue(DEFAULT_FRAME_WINDOW);
+		txtNoFrameWindow.setText(String.valueOf(DEFAULT_NO_FRAME_WINDOW));
+		sliNoFrameWindow.setValue(DEFAULT_NO_FRAME_WINDOW);
 		
 		try {
 			playImg = new Image("file:icons/play32x32.png");
@@ -279,6 +292,10 @@ public class Controller {
 			alert.setHeaderText(iae.getMessage());
 			alert.showAndWait();
 		}
+		
+		laneColor = new Scalar(0,0,0);
+		red = new double[]{0.0, 0.0, 255.0};
+		green = new double[]{0.0, 255.0, 0.0};
 	}
 
 	/**
@@ -319,6 +336,7 @@ public class Controller {
 				lastRightStripe[1] = new Point(roi.width, roi.height);
 				lastAlpha = Math.toRadians(90);
 				laneFrameCount = 0;
+				noLaneFrameCount = 0;
 				fillLane = false;
 				
 				frameCounter = 0;
@@ -471,7 +489,7 @@ public class Controller {
 		for (int i = 0; i < lines.rows(); i++) {
 			double[] val = lines.get(i, 0);
 			
-			// P2 come punto pi˘ basso del segmento
+			// P2 come punto pi√π basso del segmento
 			Point p1, p2;
 			if (val[1] < val[3]) {
 				p1 = new Point(val[0], val[1]);
@@ -488,7 +506,7 @@ public class Controller {
 
 			if (p2.x <= center.x && slope > Math.toRadians(180 - sliMaxSlope.getValue()) && slope < Math.toRadians(180 - sliMinSlope.getValue())
 					&& Utils.EuclideanDistance(p2, center) < Utils.EuclideanDistance(leftStripe[0], center)) { 
-				// P1 Ë a destra del centro, ha una pendenza sensata, ed Ë a minor distanza dal centro rispetto a quello in memoria
+				// P1 √® a destra del centro, ha una pendenza sensata, ed √® a minor distanza dal centro rispetto a quello in memoria
 				leftStripe[0] = p1;
 				leftStripe[1] = p2;
 				leftSlope = slope;
@@ -496,7 +514,7 @@ public class Controller {
 				
 			} else if (p2.x > center.x && slope > Math.toRadians(sliMinSlope.getValue()) && slope < Math.toRadians(sliMaxSlope.getValue()) 
 					&& Utils.EuclideanDistance(p2, center) < Utils.EuclideanDistance(rightStripe[0], center)) {
-				// P1 Ë a destra del centro, ha una pendenza sensata, ed Ë a minor distanza dal centro rispetto a quello in memoria
+				// P1 √® a destra del centro, ha una pendenza sensata, ed √® a minor distanza dal centro rispetto a quello in memoria
 				rightStripe[0] = p1;
 				rightStripe[1] = p2;
 				rightSlope = slope;
@@ -510,6 +528,7 @@ public class Controller {
 			laneFrameCount++;
 		} else {
 			laneFrameCount = 0;
+			noLaneFrameCount++;
 		}
 		
 		lastAlpha = alpha;
@@ -520,6 +539,7 @@ public class Controller {
 				&& laneFrameCount >= (int) sliFrameWindow.getValue()) {					
 			
 			fillLane = true;
+			noLaneFrameCount = 0;
 			lastLeftStripe[0] = leftStripe[0].clone();
 			lastLeftStripe[1] = leftStripe[1].clone();
 			lastRightStripe[0] = rightStripe[0].clone();
@@ -544,28 +564,53 @@ public class Controller {
 			Rect clipping = new Rect(Integer.MIN_VALUE / 2, 0, Integer.MAX_VALUE, workingROI.rows());
 			Imgproc.clipLine(clipping, lastLeftStripe[0], lastLeftStripe[1]);
 			Imgproc.clipLine(clipping, lastRightStripe[0], lastRightStripe[1]);
+		}else{	//se per m frame non trovo nulla, rendo invisibile la corsia colorata
+			if(noLaneFrameCount >= (int) sliNoFrameWindow.getValue()){
+				fillLane = false;
+			}
 		}
-
-		if (chkStripes.isSelected()) {
-			Imgproc.line(imageROI, lastLeftStripe[0], lastLeftStripe[1], new Scalar(0, 255, 0), 4);
-			Imgproc.line(imageROI, lastRightStripe[0], lastRightStripe[1], new Scalar(0, 255, 0), 4);
+							
+		Point intersection = Utils.Intersection(lastLeftStripe[0], lastLeftStripe[1], lastRightStripe[0], lastRightStripe[1]);
+		//Point topLeft = new Point(lastLeftStripe[1].x, intersection.y);
+		//Point bottomRight = new Point(lastRightStripe[1].x, 0);
+		if (chkStripes.isSelected() && (leftFound && rightFound)) {
+			Mat stripesROI = imageROI.clone();
+			Imgproc.line(stripesROI, intersection, lastLeftStripe[1], new Scalar(0, 0, 255), 4);	//rosse
+			Imgproc.line(stripesROI, intersection, lastRightStripe[1], new Scalar(0, 0, 255), 4);	//rosse
+			Core.addWeighted(imageROI, 1.0-0.7, stripesROI, 0.7, 0.0, imageROI);
 		}
+		roiCenter = leftTopPointROI.x + center.x;
+		/*if(fillLane)
+			System.out.println("lastLeftStripe.x = " + lastLeftStripe[1].x + "; lastRightStripe.x = " + lastRightStripe[1].x +
+				"\nrightBottomPointROI.x = " + rightBottomPointROI.x + "; leftTopPointROI.x = " + leftTopPointROI.x + "; roiCenter = " + roiCenter + "\n");*/
 
-		if (fillLane && chkLane.isSelected()){
-			MatOfPoint lane = new MatOfPoint(lastLeftStripe[0], lastLeftStripe[1], lastRightStripe[1], lastRightStripe[0]);
-			Imgproc.fillConvexPoly(imageROI, lane, new Scalar(255, 0, 0));
+		
+		if (fillLane && chkLane.isSelected() && (rightFound && leftFound)){
+			if(lastLeftStripe[1].x <= (roiCenter - ((rightBottomPointROI.x - leftTopPointROI.x)/(2*3))) &&
+					lastRightStripe[1].x >= (roiCenter + ((rightBottomPointROI.x - leftTopPointROI.x)/(2*3)))){
+				laneColor.set(green);
+			}else laneColor.set(red);
+			
+			Mat laneROI = imageROI.clone();
+			//laneROI = new Mat(imageROI.rows(),imageROI.cols(), imageROI.type(), new Scalar(0,0,0));
+			MatOfPoint lane = new MatOfPoint(intersection, lastLeftStripe[1], lastRightStripe[1], intersection);
+			//Utils.FillWithGradient(imageROI, intersection, lastLeftStripe[1], lastRightStripe[1]);
+			Imgproc.fillConvexPoly(laneROI, lane, laneColor);
+			Core.addWeighted(imageROI, 1.0-0.4, laneROI, 0.4, 0.0, imageROI);
 		}
 		
-		if (leftFound && chkChosenSegments.isSelected()) Imgproc.line(imageROI, leftStripe[0], leftStripe[1], new Scalar(255, 255, 0), 3);
-		if (rightFound && chkChosenSegments.isSelected()) Imgproc.line(imageROI, rightStripe[0], rightStripe[1], new Scalar(255, 255, 0), 3);
+		if (leftFound && chkChosenSegments.isSelected()) Imgproc.line(workingROI, leftStripe[0], leftStripe[1], new Scalar(0, 255, 0), 4);	//verdi
+		if (rightFound && chkChosenSegments.isSelected()) Imgproc.line(workingROI, rightStripe[0], rightStripe[1], new Scalar(0, 255, 0), 4);
 							
-		if (chkCenter.isSelected())
-			Imgproc.line(imageROI, center, new Point(center.x, 0), new Scalar(255, 255, 255), 2);
+		if (chkCenter.isSelected()){
+			Imgproc.line(imageROI, center, new Point(center.x, 0), new Scalar(0, 255, 255), 4);
+		}
 		
 		if (chkBorders.isSelected()) {		
 			Imgproc.cvtColor(workingROI, workingROI, Imgproc.COLOR_GRAY2BGR);
 			Core.addWeighted(imageROI, 1.0, workingROI, 0.7, 0.0, imageROI);
-		}
+		}					
+
 		
 		Imgproc.rectangle(frame, leftTopPointROI, rightBottomPointROI, new Scalar(255, 255, 255), 2);
 		
@@ -647,7 +692,7 @@ public class Controller {
 	}
 	
 	/**
-	 * Comando bottone per aumentare la velocit‡ del video.
+	 * Comando bottone per aumentare la velocit√† del video.
 	 */
 	@FXML
 	private void setFastForward() {		
@@ -689,7 +734,7 @@ public class Controller {
 		leftTopPointROI.y = y - Math.round(frameHeight * rectROI.getHeight() / stackpROI.getHeight());
 		rightBottomPointROI.x = x + Math.round(frameWidth * rectROI.getWidth() / stackpROI.getWidth());
 		rightBottomPointROI.y = y;
-		// il rettangolo viene disegnato a partire da top-left del frame, che Ë
+		// il rettangolo viene disegnato a partire da top-left del frame, che √®
 		// 0,0
 		// Imgproc.rectangle(frame, leftTopPointROI, rightBottomPointROI, new
 		// Scalar(0,0,255), 3);
@@ -1068,4 +1113,20 @@ public class Controller {
 		processAndShowFrame();
 	}
 	
+	@FXML
+	private void dragNoFrameWindow() {
+		int value = (int) sliNoFrameWindow.getValue();
+		txtNoFrameWindow.setText(String.valueOf(value));
+		processAndShowFrame();
+	}
+	
+	@FXML
+	private void setNoFrameWindow() {
+		String text = txtNoFrameWindow.getText();
+		if (text.matches("\\d*|\\d*\\.\\d")) {								
+			sliFrameWindow.setValue(Integer.valueOf(text));
+		}
+		txtNoFrameWindow.setText(String.valueOf((int) sliFrameWindow.getValue()));	
+		processAndShowFrame();
+	}
 }
