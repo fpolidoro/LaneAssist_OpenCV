@@ -191,6 +191,8 @@ public class Controller {
 	private CheckBox chkLane;
 	@FXML
 	private CheckBox chkROI;
+	@FXML
+	private CheckBox chkCenter;
 
 	private Stage stage;
 	private Node debugPane;
@@ -499,17 +501,7 @@ public class Controller {
 			boolean leftFound = false, rightFound = false;
 
 		Point center = new Point(workingROI.cols() / 2, workingROI.rows());
-		
-		for (int i = 0; i < lines.rows(); i++) {
-			double[] val = lines.get(i, 0);
-			
-			// P2 come punto più basso del segmento
-			Point p1, p2;
-			if (val[1] < val[3]) {
-				p1 = new Point(val[0], val[1]);
-				p2 = new Point(val[2], val[3]);
-			Point center = new Point(workingROI.cols() / 2, workingROI.rows());
-
+	
 			for (int i = 0; i < lines.rows(); i++) {
 				double[] val = lines.get(i, 0);
 
@@ -551,37 +543,6 @@ public class Controller {
 			}
 
 			double alpha = leftSlope - rightSlope;
-
-			if (Math.abs(lastAlpha - alpha) < Math.toRadians(sliAlphaVariance.getValue())) {
-				laneFrameCount++;
-			} else {
-				laneFrameCount = 0;
-			}
-			
-			if (chkDetectedSegments.isSelected())
-				Imgproc.line(imageROI, p1, p2, new Scalar(255, 0, 255), 2);
-									
-			double slope = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-
-			if (p2.x <= center.x && slope > Math.toRadians(180 - sliMaxSlope.getValue()) && slope < Math.toRadians(180 - sliMinSlope.getValue())
-					&& Utils.EuclideanDistance(p2, center) < Utils.EuclideanDistance(leftStripe[0], center)) { 
-				// P1 è a destra del centro, ha una pendenza sensata, ed è a minor distanza dal centro rispetto a quello in memoria
-				leftStripe[0] = p1;
-				leftStripe[1] = p2;
-				leftSlope = slope;
-				leftFound = true;
-				
-			} else if (p2.x > center.x && slope > Math.toRadians(sliMinSlope.getValue()) && slope < Math.toRadians(sliMaxSlope.getValue()) 
-					&& Utils.EuclideanDistance(p2, center) < Utils.EuclideanDistance(rightStripe[0], center)) {
-				// P1 è a destra del centro, ha una pendenza sensata, ed è a minor distanza dal centro rispetto a quello in memoria
-				rightStripe[0] = p1;
-				rightStripe[1] = p2;
-				rightSlope = slope;
-				rightFound = true;
-			}						
-		}
-						
-		double alpha = leftSlope - rightSlope;
 		
 		if (Math.abs(lastAlpha - alpha) < Math.toRadians(sliAlphaVariance.getValue())) {				
 			laneFrameCount++;
@@ -676,69 +637,6 @@ public class Controller {
 		Image imageToShow = Utils.mat2Image(frame);
 		Utils.onFXThread(currentImage.imageProperty(), imageToShow);
 
-			lastAlpha = alpha;
-
-			// Se ha trovato entrambe e insieme non formano troppo grande o
-			// troppo piccolo, e sono regolari da n frame
-			if (leftFound && rightFound && alpha > Math.toRadians(sliMinAlpha.getValue())
-					&& alpha < Math.toRadians(sliMaxAlpha.getValue())
-					&& laneFrameCount >= (int) sliFrameWindow.getValue()) {
-
-				fillLane = true;
-				lastLeftStripe[0] = leftStripe[0].clone();
-				lastLeftStripe[1] = leftStripe[1].clone();
-				lastRightStripe[0] = rightStripe[0].clone();
-				lastRightStripe[1] = rightStripe[1].clone();
-
-				// Estende i segmenti
-				double dx = Math.cos(leftSlope) * 10000;
-				double dy = Math.sin(leftSlope) * 10000;
-
-				lastLeftStripe[0].x -= dx;
-				lastLeftStripe[0].y -= dy;
-				lastLeftStripe[1].x += dx;
-				lastLeftStripe[1].y += dy;
-
-				dx = Math.cos(rightSlope) * 10000;
-				dy = Math.sin(rightSlope) * 10000;
-				lastRightStripe[0].x -= dx;
-				lastRightStripe[0].y -= dy;
-				lastRightStripe[1].x += dx;
-				lastRightStripe[1].y += dy;
-
-				Rect clipping = new Rect(Integer.MIN_VALUE / 2, 0, Integer.MAX_VALUE, workingROI.rows());
-				Imgproc.clipLine(clipping, lastLeftStripe[0], lastLeftStripe[1]);
-				Imgproc.clipLine(clipping, lastRightStripe[0], lastRightStripe[1]);
-			}
-
-			if (fillLane && chkStripes.isSelected()) {
-				Imgproc.line(imageROI, lastLeftStripe[0], lastLeftStripe[1], new Scalar(0, 255, 0), 4);
-				Imgproc.line(imageROI, lastRightStripe[0], lastRightStripe[1], new Scalar(0, 255, 0), 4);
-			}
-
-			if (fillLane && chkLane.isSelected()) {
-				MatOfPoint lane = new MatOfPoint(lastLeftStripe[0], lastLeftStripe[1], lastRightStripe[1],
-						lastRightStripe[0]);
-				Imgproc.fillConvexPoly(imageROI, lane, new Scalar(255, 0, 0));
-			}
-
-			if (leftFound && chkChosenSegments.isSelected())
-				Imgproc.line(imageROI, leftStripe[0], leftStripe[1], new Scalar(255, 255, 0), 3);
-			if (rightFound && chkChosenSegments.isSelected())
-				Imgproc.line(imageROI, rightStripe[0], rightStripe[1], new Scalar(255, 255, 0), 3);
-
-			if (chkBorders.isSelected()) {
-				Imgproc.cvtColor(workingROI, workingROI, Imgproc.COLOR_GRAY2BGR);
-				Core.addWeighted(imageROI, 1.0, workingROI, 0.7, 0.0, imageROI);
-			}
-
-			if (chkROI.isSelected()) {
-				Imgproc.rectangle(frame, leftTopPointROI, rightBottomPointROI, new Scalar(255, 255, 255), 2);
-				Imgproc.line(imageROI, center, new Point(center.x, 0), new Scalar(255, 255, 255), 2);
-			}
-
-			Image imageToShow = Utils.mat2Image(frame);
-			Utils.onFXThread(currentImage.imageProperty(), imageToShow);
 		}
 	}
 
