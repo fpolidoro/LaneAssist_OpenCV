@@ -338,6 +338,10 @@ public class Controller {
 				setGUIDisabled(false);
 				computeROIDimension();
 				computePointsForROI();
+				dragROIHeight();
+				dragROIWidth();
+				dragROIHorizontalPosition();
+				dragROIVerticalPosition();
 				
 				lastLeftStripe = new Point[2];
 				lastRightStripe = new Point[2];
