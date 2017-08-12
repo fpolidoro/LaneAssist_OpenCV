@@ -1,8 +1,13 @@
 package laneassist;
 
+import laneassist.utils.Line;
+import laneassist.utils.LinePair;
+import laneassist.utils.Utils;
+
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -42,32 +47,32 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import laneassist.utils.Utils;
 
 public class Controller {
-	
+
 	private final Double ROI_WIDTH = 120.0;
 	private final Double ROI_HEIGHT = 35.0;
-	
+
 	private final int DEFAULT_BLUR = 3;
 	private final int DEFAULT_CANNY_THRESHOLD = 27;
 	private final int DEFAULT_CANNY_RATIO = 3;
 	private final int DEFAULT_APERTURE_SIZE = 3;
-	
+
 	private final int DEFAULT_HOUGH_RHO = 1;
 	private final int DEFAULT_HOUGH_THETA = 180;
 	private final int DEFAULT_HOUGH_THRESHOLD = 30;
-	private final int DEFAULT_MIN_LENGHT = 30;
+	private final int DEFAULT_MIN_LENGHT = 20;
 	private final int DEFAULT_MAX_GAP = 5;
-	
+
 	private final int DEFAULT_MIN_SLOPE = 10;
 	private final int DEFAULT_MAX_SLOPE = 120;
-	private final int DEFAULT_MIN_ALPHA = 70;
-	private final int DEFAULT_MAX_ALPHA = 120;
-	private final int DEFAULT_ALPHA_VARIANCE = 3;
-	private final int DEFAULT_FRAME_WINDOW = 3;
-	private final int DEFAULT_NO_FRAME_WINDOW = 50;
-	
+	private final int DEFAULT_CANDIDATES_NUMBER = 6;
+	private final int DEFAULT_MIN_ALPHA = 80;
+	private final int DEFAULT_MAX_ALPHA = 110;
+	private final int DEFAULT_HORIZON_VARIANCE = 20;
+	private final int DEFAULT_FRAMES_TO_SHOW = 30;
+	private final int DEFAULT_FRAMES_TO_HIDE = 30;
+
 	@FXML
 	private CheckMenuItem menuItemShowDebug;
 	@FXML
@@ -160,6 +165,10 @@ public class Controller {
 	@FXML
 	private TextField txtMaxSlope;
 	@FXML
+	private Slider sliCandidatesNumber;
+	@FXML
+	private TextField txtCandidatesNumber;
+	@FXML
 	private Slider sliMinAlpha;
 	@FXML
 	private TextField txtMinAlpha;
@@ -168,31 +177,29 @@ public class Controller {
 	@FXML
 	private TextField txtMaxAlpha;
 	@FXML
-	private Slider sliAlphaVariance;
+	private Slider sliHorizonVariance;
 	@FXML
-	private TextField txtAlphaVariance;
+	private TextField txtHorizonVariance;
 	@FXML
-	private Slider sliFrameWindow;
+	private Slider sliFramesToShow;
 	@FXML
-	private TextField txtFrameWindow;
+	private TextField txtFramesToShow;
 	@FXML
-	private Slider sliNoFrameWindow;
+	private Slider sliFramesToHide;
 	@FXML
-	private TextField txtNoFrameWindow;
+	private TextField txtFramesToHide;
 	@FXML
 	private CheckBox chkBorders;
 	@FXML
 	private CheckBox chkDetectedSegments;
 	@FXML
-	private CheckBox chkChosenSegments;
+	private CheckBox chkCandidateStripes;
 	@FXML
-	private CheckBox chkStripes;
+	private CheckBox chkFinalStripes;
 	@FXML
 	private CheckBox chkLane;
 	@FXML
 	private CheckBox chkROI;
-	@FXML
-	private CheckBox chkCenter;
 
 	private Stage stage;
 	private Node debugPane;
@@ -212,24 +219,18 @@ public class Controller {
 
 	private ScheduledExecutorService timer;
 	private ScheduledFuture<?> future;
-	private VideoCapture capture = new VideoCapture();	
-	private Runnable frameGrabber;
+	private VideoCapture capture = new VideoCapture();
+	private Runnable forwardFrameGrabber;
+	private Runnable backwardFrameGrabber;
 	private Mat currentFrame;
-
-	private Point[] lastLeftStripe;
-	private Point[] lastRightStripe;
-	private double lastAlpha;
-	private int laneFrameCount;
-	private int noLaneFrameCount;
-	private boolean fillLane;
 	
-	private Scalar laneColor;
-	private double[] red;
-	private double[] green;
-	private double roiCenter;
+	private int framesToShowCounter;
+	private int framesToHideCounter;
+	private LinePair lastLane;
 
 	private int frameCounter;
 	private float speedMultiplier;
+	private boolean rewind;
 
 	/**
 	 * Inizializza i comandi della GUI
@@ -268,17 +269,19 @@ public class Controller {
 		sliMinSlope.setValue(DEFAULT_MIN_SLOPE);
 		txtMaxSlope.setText(String.valueOf(DEFAULT_MAX_SLOPE));
 		sliMaxSlope.setValue(DEFAULT_MAX_SLOPE);
+		txtCandidatesNumber.setText(String.valueOf(DEFAULT_CANDIDATES_NUMBER));
+		sliCandidatesNumber.setValue(DEFAULT_CANDIDATES_NUMBER);
 		txtMinAlpha.setText(String.valueOf(DEFAULT_MIN_ALPHA));
 		sliMinAlpha.setValue(DEFAULT_MIN_ALPHA);
 		txtMaxAlpha.setText(String.valueOf(DEFAULT_MAX_ALPHA));
 		sliMaxAlpha.setValue(DEFAULT_MAX_ALPHA);
-		txtAlphaVariance.setText(String.valueOf(DEFAULT_ALPHA_VARIANCE));
-		sliAlphaVariance.setValue(DEFAULT_ALPHA_VARIANCE);
-		txtFrameWindow.setText(String.valueOf(DEFAULT_FRAME_WINDOW));
-		sliFrameWindow.setValue(DEFAULT_FRAME_WINDOW);
-		txtNoFrameWindow.setText(String.valueOf(DEFAULT_NO_FRAME_WINDOW));
-		sliNoFrameWindow.setValue(DEFAULT_NO_FRAME_WINDOW);
-		
+		txtHorizonVariance.setText(String.valueOf(DEFAULT_HORIZON_VARIANCE));
+		sliHorizonVariance.setValue(DEFAULT_HORIZON_VARIANCE);
+		txtFramesToShow.setText(String.valueOf(DEFAULT_FRAMES_TO_SHOW));
+		sliFramesToShow.setValue(DEFAULT_FRAMES_TO_SHOW);
+		txtFramesToHide.setText(String.valueOf(DEFAULT_FRAMES_TO_HIDE));
+		sliFramesToHide.setValue(DEFAULT_FRAMES_TO_HIDE);
+
 		try {
 			playImg = new Image("file:icons/play32x32.png");
 			pauseImg = new Image("file:icons/pause32x32.png");
@@ -290,25 +293,42 @@ public class Controller {
 			alert.setHeaderText(iae.getMessage());
 			alert.showAndWait();
 		}
-		
-		laneColor = new Scalar(0,0,0);
-		red = new double[]{0.0, 0.0, 255.0};
-		green = new double[]{0.0, 255.0, 0.0};
-	}
-	
-	private void initVideo(){
-		lastLeftStripe = new Point[2];
-		lastRightStripe = new Point[2];
-		lastLeftStripe[0] = new Point(0, roi.height);
-		lastLeftStripe[1] = new Point(0, 0);
-		lastRightStripe[0] = new Point(roi.width, 0);
-		lastRightStripe[1] = new Point(roi.width, roi.height);
-		lastAlpha = Math.toRadians(90);
-		laneFrameCount = 0;
-		fillLane = false;
 
-		frameCounter = -1;
+		forwardFrameGrabber = new Runnable() {
+
+			@Override
+			public void run() {
+				currentFrame = grabFrame();
+				processAndShowFrame();
+				showInfo();
+			}
+		};
+
+		backwardFrameGrabber = new Runnable() {
+
+			@Override
+			public void run() {
+				frameCounter -= 2;
+				capture.set(Videoio.CAP_PROP_POS_FRAMES, frameCounter);
+
+				currentFrame = grabFrame();
+				showFrame(currentFrame);
+				showInfo();
+			}
+		};
+
+		timer = Executors.newSingleThreadScheduledExecutor();
+	}
+
+	private void initVideo() {	
+		framesToShowCounter = 0;
+		framesToHideCounter = 0;
+		
+		lastLane = new LinePair(new Line(), new Line());
+		
+		frameCounter = 0;
 		speedMultiplier = 1;
+		rewind = false;
 	}
 
 	/**
@@ -335,44 +355,17 @@ public class Controller {
 				lblFileName.setText(video.getName());
 				frameWidth = capture.get(Videoio.CAP_PROP_FRAME_WIDTH);
 				frameHeight = capture.get(Videoio.CAP_PROP_FRAME_HEIGHT);
-//				double frameCount = capture.get(Videoio.CAP_PROP_FRAME_COUNT);
-//				System.out.println("frameCount = " + frameCount);
+
 				setGUIDisabled(false);
 				computeROIDimension();
 				computePointsForROI();
 				dragROIHeight();
 				dragROIWidth();
 				dragROIHorizontalPosition();
-				dragROIVerticalPosition();
-				
-				lastLeftStripe = new Point[2];
-				lastRightStripe = new Point[2];
-				lastLeftStripe[0] = new Point(0, roi.height);
-				lastLeftStripe[1] = new Point(0, 0);
-				lastRightStripe[0] = new Point(roi.width, 0);
-				lastRightStripe[1] = new Point(roi.width, roi.height);
-				lastAlpha = Math.toRadians(90);
-				laneFrameCount = 0;
-				noLaneFrameCount = 0;
-				fillLane = false;
-				
-				frameCounter = 0;
+				dragROIVerticalPosition();		
 
 				initVideo();
-
-				frameGrabber = new Runnable() {
-
-					@Override
-					public void run() {
-						currentFrame = grabFrame();
-						processAndShowFrame();
-						showInfo();
-					}
-				};
-
-				timer = Executors.newSingleThreadScheduledExecutor();
-				future = timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
-				imgPlayPause.setImage(pauseImg);
+				setPlayPause();
 
 			} else {
 				Alert alert = new Alert(AlertType.ERROR);
@@ -416,7 +409,7 @@ public class Controller {
 			stackpROI.setPadding(new Insets(spROIPadding.getTop(), spROIPadding.getRight(), 0.0, padding));
 			curROIPaneWidth = stackpROI.getWidth();
 			curROIPaneHeight = stackpROI.getHeight();
-//			System.out.println("padding: " + padding);
+			// System.out.println("padding: " + padding);
 			rectROI.setVisible(true);
 			stackpROI.setStyle("-fx-border-color: grey ;");
 		}
@@ -448,26 +441,23 @@ public class Controller {
 	 * @return Mat contenente il nuovo frame
 	 */
 	private Mat grabFrame() {
+		if (frameCounter < 0) {
+			setStop();
+			return null;
+		} else {
+			Mat frame = new Mat();
 
-		Mat frame = new Mat();
-
-		if (this.capture.isOpened()) {
-			try {
+			if (this.capture.isOpened()) {
 				this.capture.read(frame);
 
 				if (frame.empty()) {
 					setStop();
 					return null;
 				}
-			} catch (Exception e) {
-				Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("Error while processing the image");
-				alert.setHeaderText(e.getMessage());
-				alert.showAndWait();
 			}
+			frameCounter = (int) capture.get(Videoio.CAP_PROP_POS_FRAMES);
+			return frame;
 		}
-		frameCounter++;
-		return frame;
 	}
 
 	/**
@@ -489,19 +479,14 @@ public class Controller {
 			Imgproc.HoughLinesP(workingROI, lines, sliHoughRho.getValue(), Math.PI / sliHoughTheta.getValue(),
 					(int) sliHoughThreshold.getValue(), sliMinLenght.getValue(), sliMaxGap.getValue());
 
-			// Solo due strise da disegnare, sinistra e destra
-			Point[] leftStripe = new Point[2], rightStripe = new Point[2];
-			leftStripe[0] = new Point(0, workingROI.rows());
-			leftStripe[1] = new Point(0, 0);
+			// Calcola il centro basso e alto della ROI
+			Point lowerCenter = new Point(workingROI.cols() / 2, workingROI.rows());
+			Point upperCenter = new Point(workingROI.cols() / 2, 0);
 
-			rightStripe[0] = new Point(workingROI.cols(), 0);
-			rightStripe[1] = new Point(workingROI.cols(), workingROI.rows());
+			// Due liste di linee, destra e sinistra
+			ArrayList<Line> leftList = new ArrayList<Line>();
+			ArrayList<Line> rightList = new ArrayList<Line>();
 
-			double leftSlope = 0, rightSlope = 0;
-			boolean leftFound = false, rightFound = false;
-
-		Point center = new Point(workingROI.cols() / 2, workingROI.rows());
-	
 			for (int i = 0; i < lines.rows(); i++) {
 				double[] val = lines.get(i, 0);
 
@@ -518,133 +503,133 @@ public class Controller {
 				if (chkDetectedSegments.isSelected())
 					Imgproc.line(imageROI, p1, p2, new Scalar(255, 0, 255), 2);
 
+				Rect clipping = new Rect(Integer.MIN_VALUE / 2, 0, Integer.MAX_VALUE, workingROI.rows());
 				double slope = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+				
+				//Smista i segmenti che rispettano i vincoli nelle rispettive liste (nel costruttore di Line, vengono anche estesi a linee)
+				if (p2.x <= lowerCenter.x 
+						&& slope > Math.toRadians(180 - sliMaxSlope.getValue())
+						&& slope < Math.toRadians(180 - sliMinSlope.getValue())) {
+					
+					leftList.add(new Line(p1, p2, slope, clipping));
 
-				if (p2.x <= center.x && slope > Math.toRadians(180 - sliMaxSlope.getValue())
-						&& slope < Math.toRadians(180 - sliMinSlope.getValue())
-						&& Utils.EuclideanDistance(p2, center) < Utils.EuclideanDistance(leftStripe[0], center)) {
-					// P1  a destra del centro, ha una pendenza sensata, ed  a
-					// minor distanza dal centro rispetto a quello in memoria
-					leftStripe[0] = p1;
-					leftStripe[1] = p2;
-					leftSlope = slope;
-					leftFound = true;
+				} else if (p2.x > lowerCenter.x 
+						&& slope > Math.toRadians(sliMinSlope.getValue())
+						&& slope < Math.toRadians(sliMaxSlope.getValue())) {
 
-				} else if (p2.x > center.x && slope > Math.toRadians(sliMinSlope.getValue())
-						&& slope < Math.toRadians(sliMaxSlope.getValue())
-						&& Utils.EuclideanDistance(p2, center) < Utils.EuclideanDistance(rightStripe[0], center)) {
-					// P1  a destra del centro, ha una pendenza sensata, ed  a
-					// minor distanza dal centro rispetto a quello in memoria
-					rightStripe[0] = p1;
-					rightStripe[1] = p2;
-					rightSlope = slope;
-					rightFound = true;
+					rightList.add(new Line(p1, p2, slope, clipping));;
 				}
 			}
 
-			double alpha = leftSlope - rightSlope;
-		
-		if (Math.abs(lastAlpha - alpha) < Math.toRadians(sliAlphaVariance.getValue())) {				
-			laneFrameCount++;
-		} else {
-			laneFrameCount = 0;
-			noLaneFrameCount++;
-		}
-		
-		lastAlpha = alpha;
-		
-		// Se ha trovato entrambe e insieme non formano troppo grande o troppo piccolo, e sono regolari da n frame
-		if (leftFound && rightFound 
-				&& alpha > Math.toRadians(sliMinAlpha.getValue()) && alpha < Math.toRadians(sliMaxAlpha.getValue())
-				&& laneFrameCount >= (int) sliFrameWindow.getValue()) {					
-			
-			fillLane = true;
-			noLaneFrameCount = 0;
-			lastLeftStripe[0] = leftStripe[0].clone();
-			lastLeftStripe[1] = leftStripe[1].clone();
-			lastRightStripe[0] = rightStripe[0].clone();
-			lastRightStripe[1] = rightStripe[1].clone();
-			
-			// Estende i segmenti
-			double dx = Math.cos(leftSlope) * 10000;				
-			double dy = Math.sin(leftSlope) * 10000;
-			
-			lastLeftStripe[0].x -= dx;
-			lastLeftStripe[0].y -= dy;
-			lastLeftStripe[1].x += dx;
-			lastLeftStripe[1].y += dy;
-			
-			dx = Math.cos(rightSlope) * 10000;
-			dy = Math.sin(rightSlope) * 10000;
-			lastRightStripe[0].x -= dx;
-			lastRightStripe[0].y -= dy;
-			lastRightStripe[1].x += dx;
-			lastRightStripe[1].y += dy;
+			// Ordina le due liste in base alla distanza dal centro più basso
+			leftList.sort((Line l1, Line l2) -> (int) l2.getLower().x - (int) l1.getLower().x);
+			rightList.sort((Line l1, Line l2) -> (int) l1.getLower().x - (int) l2.getLower().x);
 
-			Rect clipping = new Rect(Integer.MIN_VALUE / 2, 0, Integer.MAX_VALUE, workingROI.rows());
-			Imgproc.clipLine(clipping, lastLeftStripe[0], lastLeftStripe[1]);
-			Imgproc.clipLine(clipping, lastRightStripe[0], lastRightStripe[1]);
-		}else{	//se per m frame non trovo nulla, rendo invisibile la corsia colorata
-			if(noLaneFrameCount >= (int) sliNoFrameWindow.getValue()){
-				fillLane = false;
+			// La lista viene potata, restano solo 'Number of candidates' elementi
+			leftList = new ArrayList<Line>(leftList.subList(0, Math.min(leftList.size(), (int) sliCandidatesNumber.getValue())));
+			rightList = new ArrayList<Line>(rightList.subList(0, Math.min(rightList.size(), (int) sliCandidatesNumber.getValue())));
+
+			// Crea tutte le possibili coppie di linee, e tiene solo quelle che rispettano i vincoli
+			ArrayList<LinePair> pairList = new ArrayList<LinePair>();
+			for (Line leftLine : leftList) {
+				
+				if (chkCandidateStripes.isSelected())
+					Imgproc.line(imageROI, leftLine.getUpper(), leftLine.getLower(), new Scalar(255, 255, 0), 4);
+				
+				for (Line rightLine : rightList) {
+					
+					if (chkCandidateStripes.isSelected())
+						Imgproc.line(imageROI, rightLine.getUpper(), rightLine.getLower(), new Scalar(255, 255, 0), 4);
+					
+					LinePair pair = new LinePair(leftLine, rightLine);
+					if (pair.getAlpha() > Math.toRadians(sliMinAlpha.getValue()) && pair.getAlpha() < Math.toRadians(sliMaxAlpha.getValue())
+							&& Math.abs(upperCenter.y - pair.getIntersection().y) < sliHorizonVariance.getValue()) {	
+						pairList.add(pair);
+					}
+				}
 			}
-		}
-							
-		Point intersection = Utils.Intersection(lastLeftStripe[0], lastLeftStripe[1], lastRightStripe[0], lastRightStripe[1]);
-		//Point topLeft = new Point(lastLeftStripe[1].x, intersection.y);
-		//Point bottomRight = new Point(lastRightStripe[1].x, 0);
-		if (chkStripes.isSelected() && (leftFound && rightFound)) {
-			Mat stripesROI = imageROI.clone();
-			Imgproc.line(stripesROI, intersection, lastLeftStripe[1], new Scalar(0, 0, 255), 4);	//rosse
-			Imgproc.line(stripesROI, intersection, lastRightStripe[1], new Scalar(0, 0, 255), 4);	//rosse
-			Core.addWeighted(imageROI, 1.0-0.7, stripesROI, 0.7, 0.0, imageROI);
-		}
-		roiCenter = leftTopPointROI.x + center.x;
-		/*if(fillLane)
-			System.out.println("lastLeftStripe.x = " + lastLeftStripe[1].x + "; lastRightStripe.x = " + lastRightStripe[1].x +
-				"\nrightBottomPointROI.x = " + rightBottomPointROI.x + "; leftTopPointROI.x = " + leftTopPointROI.x + "; roiCenter = " + roiCenter + "\n");*/
+					
+			// Se la lista non è vuota, vuol dire che c'è almeno una coppia di linee che rispetta i vincoli
+			if (!pairList.isEmpty()) {
+				
+				framesToShowCounter++;
 
-		
-		if (fillLane && chkLane.isSelected() && (rightFound && leftFound)){
-			if(lastLeftStripe[1].x <= (roiCenter - ((rightBottomPointROI.x - leftTopPointROI.x)/(2*3))) &&
-					lastRightStripe[1].x >= (roiCenter + ((rightBottomPointROI.x - leftTopPointROI.x)/(2*3)))){
-				laneColor.set(green);
-			}else laneColor.set(red);
+				// Ordina la lista in base alla distanza dell'intersezione delle line dal centro superiore (orizzonte)
+				pairList.sort((LinePair lp1, LinePair lp2) -> {
+					double d1 = Utils.EuclideanDistance(lp1.getIntersection(), upperCenter);
+					double d2 = Utils.EuclideanDistance(lp2.getIntersection(), upperCenter);
+					
+					if (d1 < d2)
+						return -1;
+					else if (d2 > d1)
+						return 1;
+					else
+						return 0;
+				});
+				
+				// Prende la coppia con l'intersezione più vicina al centro superiore (orizzonte)
+				lastLane = pairList.get(0);
+				
+			} else {				
+				framesToHideCounter++;
+				if (framesToHideCounter > sliFramesToHide.getValue())
+					framesToShowCounter = 0;
+			}
 			
-			Mat laneROI = imageROI.clone();
-			//laneROI = new Mat(imageROI.rows(),imageROI.cols(), imageROI.type(), new Scalar(0,0,0));
-			MatOfPoint lane = new MatOfPoint(intersection, lastLeftStripe[1], lastRightStripe[1], intersection);
-			//Utils.FillWithGradient(imageROI, intersection, lastLeftStripe[1], lastRightStripe[1]);
-			Imgproc.fillConvexPoly(laneROI, lane, laneColor);
-			Core.addWeighted(imageROI, 1.0-0.4, laneROI, 0.4, 0.0, imageROI);
-		}
-		
-		if (leftFound && chkChosenSegments.isSelected()) Imgproc.line(workingROI, leftStripe[0], leftStripe[1], new Scalar(0, 255, 0), 4);	//verdi
-		if (rightFound && chkChosenSegments.isSelected()) Imgproc.line(workingROI, rightStripe[0], rightStripe[1], new Scalar(0, 255, 0), 4);
-							
-		if (chkCenter.isSelected()){
-			Imgproc.line(imageROI, center, new Point(center.x, 0), new Scalar(0, 255, 255), 4);
-		}
-		
-		if (chkBorders.isSelected()) {		
-			Imgproc.cvtColor(workingROI, workingROI, Imgproc.COLOR_GRAY2BGR);
-			Core.addWeighted(imageROI, 1.0, workingROI, 0.7, 0.0, imageROI);
-		}					
+			if (framesToShowCounter > sliFramesToShow.getValue()) {
+				
+				Line left = lastLane.getLeft();
+				Line right = lastLane.getRight();
+				Point intersection = lastLane.getIntersection();
 
-		
-		Imgproc.rectangle(frame, leftTopPointROI, rightBottomPointROI, new Scalar(255, 255, 255), 2);
-		
+				double leftDelta = lowerCenter.x - left.getLower().x;
+				double rightDelta = right.getLower().x - lowerCenter.x;
+
+				Scalar laneColor = (leftDelta < rightDelta) ? new Scalar(0, leftDelta, 255 - leftDelta)
+						: new Scalar(0, rightDelta, 255 - rightDelta);
+
+				if (chkFinalStripes.isSelected()) {
+					Mat stripesROI = imageROI.clone();
+					Imgproc.line(stripesROI, intersection, left.getLower(), new Scalar(0, leftDelta, 255 - leftDelta), 6);
+					Imgproc.line(stripesROI, intersection, right.getLower(), new Scalar(0, rightDelta, 255 - rightDelta), 6);
+					Core.addWeighted(imageROI, 1.0 - 0.7, stripesROI, 0.7, 0.0, imageROI);
+				}
+
+				if (chkLane.isSelected()) {
+					Mat laneROI = imageROI.clone();
+					MatOfPoint lane = new MatOfPoint(intersection, left.getLower(), right.getLower(), intersection);
+					Imgproc.fillConvexPoly(laneROI, lane, laneColor);
+					Core.addWeighted(imageROI, 1.0 - 0.4, laneROI, 0.4, 0.0, imageROI);
+				}
+			}
+
+			if (chkBorders.isSelected()) {
+				Imgproc.cvtColor(workingROI, workingROI, Imgproc.COLOR_GRAY2BGR);
+				Core.addWeighted(imageROI, 1.0, workingROI, 0.7, 0.0, imageROI);
+			}
+
+			if (chkROI.isSelected()) {
+				Imgproc.rectangle(frame, leftTopPointROI, rightBottomPointROI, new Scalar(255, 255, 255), 2);
+				Imgproc.line(imageROI, lowerCenter, new Point(lowerCenter.x, 0), new Scalar(255, 255, 255), 2);
+			}
+
+			showFrame(frame);
+		}
+	}
+
+	/**
+	 * Mostra il frame
+	 */
+	private void showFrame(Mat frame) {
 		Image imageToShow = Utils.mat2Image(frame);
 		Utils.onFXThread(currentImage.imageProperty(), imageToShow);
-
-		}
 	}
 
 	/**
 	 * Visualizza le informazioni sul video
 	 */
 	private void showInfo() {
-		int millis = frameCounter * 33;
+		int millis = (frameCounter - 1) * 33;
 		int seconds = millis / 1000;
 		int minutes = (seconds / 60) % 60;
 		seconds %= 60;
@@ -658,11 +643,9 @@ public class Controller {
 			if (speedMultiplier > 0.9 && speedMultiplier < 1.1) {
 				lblSpeed.setVisible(false);
 			} else {
-				lblSpeed.setVisible(true);
-				lblSpeed.setText(new BigDecimal(speedMultiplier)
-						.setScale(3, RoundingMode.DOWN)
-						.stripTrailingZeros()
-						.toString() + "x");
+				lblSpeed.setText(
+						new BigDecimal(speedMultiplier).setScale(3, RoundingMode.DOWN).stripTrailingZeros().toString()
+								+ "x");
 			}
 		});
 	}
@@ -674,14 +657,16 @@ public class Controller {
 	 */
 	@FXML
 	private void setStop() {
+		rewind = false;
 		speedMultiplier = 1;
 		imgPlayPause.setImage(playImg);
-		future.cancel(false);
+		if (!future.isCancelled())
+			future.cancel(false);
 		lblSpeed.setVisible(false);
-		
+
 		capture.set(Videoio.CAP_PROP_POS_FRAMES, 0);
 		initVideo();
-		
+
 		currentFrame = grabFrame();
 		processAndShowFrame();
 		showInfo();
@@ -693,39 +678,42 @@ public class Controller {
 	@FXML
 	private void setPlayPause() {
 		if (imgPlayPause.getImage().equals(playImg)) {
-			imgPlayPause.setImage(pauseImg);
-			future = timer.scheduleAtFixedRate(frameGrabber, 0, (long) (33 / speedMultiplier), TimeUnit.MILLISECONDS);
+			if (rewind) {
+				if (!future.isCancelled())
+					future.cancel(false);
+				rewind = false;
+				speedMultiplier = 1;
+			}
 
+			lblSpeed.setVisible(true);
+			imgPlayPause.setImage(pauseImg);
+			future = timer.scheduleAtFixedRate(forwardFrameGrabber, 0, (long) (33 / speedMultiplier),
+					TimeUnit.MILLISECONDS);
 		} else {
 			imgPlayPause.setImage(playImg);
-			future.cancel(false);
+			if (!future.isCancelled())
+				future.cancel(false);
 			lblSpeed.setVisible(false);
 		}
 	}
-	
-	/**
-	 * Comando bottone rewind
-	 */
-	@FXML
-	private void setRewind() {
 
-	}
-	
 	/**
 	 * Comando bottone previous frame
 	 */
 	@FXML
 	private void setPreviousFrame() {
-		if (imgPlayPause.getImage().equals(pauseImg)) {
+		if (imgPlayPause.getImage().equals(pauseImg) || rewind) {
+			rewind = false;
 			imgPlayPause.setImage(playImg);
-			future.cancel(false);
+			if (!future.isCancelled())
+				future.cancel(false);
 			lblSpeed.setVisible(false);
 		}
-	
+
 		frameCounter -= 2;
 		capture.set(Videoio.CAP_PROP_POS_FRAMES, frameCounter);
-		
-		currentFrame = grabFrame();	
+
+		currentFrame = grabFrame();
 		processAndShowFrame();
 		showInfo();
 	}
@@ -735,17 +723,42 @@ public class Controller {
 	 */
 	@FXML
 	private void setNextFrame() {
-		if (imgPlayPause.getImage().equals(pauseImg)) {
+		if (imgPlayPause.getImage().equals(pauseImg) || rewind) {
+			rewind = false;
 			imgPlayPause.setImage(playImg);
-			future.cancel(false);
+			if (!future.isCancelled())
+				future.cancel(false);
 			lblSpeed.setVisible(false);
 		}
-		
+
 		currentFrame = grabFrame();
 		processAndShowFrame();
 		showInfo();
 	}
-	
+
+	/**
+	 * Comando bottone rewind
+	 */
+	@FXML
+	private void setRewind() {
+		if (!rewind) {
+			speedMultiplier = 1;
+			imgPlayPause.setImage(playImg);
+			rewind = true;
+		}
+
+		if (speedMultiplier < 32) {
+			speedMultiplier *= 2;
+		}
+
+		lblSpeed.setVisible(true);
+
+		if (!future.isCancelled())
+			future.cancel(false);
+		future = timer.scheduleAtFixedRate(backwardFrameGrabber, 0, (long) (33 / speedMultiplier),
+				TimeUnit.MILLISECONDS);
+	}
+
 	/**
 	 * Comando bottone slow
 	 */
@@ -753,14 +766,19 @@ public class Controller {
 	private void setSlow() {
 		if (imgPlayPause.getImage().equals(playImg))
 			imgPlayPause.setImage(pauseImg);
-		
+
 		if (speedMultiplier > (float) 1 / 8)
 			speedMultiplier /= 2;
-		
-		future.cancel(false);
-		future = timer.scheduleAtFixedRate(frameGrabber, 0, (long) (33 / speedMultiplier), TimeUnit.MILLISECONDS);
+
+		lblSpeed.setVisible(true);
+		rewind = false;
+
+		if (!future.isCancelled())
+			future.cancel(false);
+		future = timer.scheduleAtFixedRate(forwardFrameGrabber, 0, (long) (33 / speedMultiplier),
+				TimeUnit.MILLISECONDS);
 	}
-	
+
 	/**
 	 * Comando bottone fast forward
 	 */
@@ -768,12 +786,17 @@ public class Controller {
 	private void setFastForward() {
 		if (imgPlayPause.getImage().equals(playImg))
 			imgPlayPause.setImage(pauseImg);
-		
+
 		if (speedMultiplier < 32)
 			speedMultiplier *= 2;
-		
-		future.cancel(false);
-		future = timer.scheduleAtFixedRate(frameGrabber, 0, (long) (33 / speedMultiplier), TimeUnit.MILLISECONDS);
+
+		lblSpeed.setVisible(true);
+		rewind = false;
+
+		if (!future.isCancelled())
+			future.cancel(false);
+		future = timer.scheduleAtFixedRate(forwardFrameGrabber, 0, (long) (33 / speedMultiplier),
+				TimeUnit.MILLISECONDS);
 	}
 
 	// Sezione ROI
@@ -802,7 +825,7 @@ public class Controller {
 		rightBottomPointROI.x = x + Math.round(frameWidth * rectROI.getWidth() / stackpROI.getWidth());
 		rightBottomPointROI.y = y;
 		roi = new Rect(leftTopPointROI, rightBottomPointROI);
-		
+
 		processAndShowFrame();
 	}
 
@@ -1109,6 +1132,23 @@ public class Controller {
 		txtMaxSlope.setText(String.valueOf((int) sliMaxSlope.getValue()));
 		processAndShowFrame();
 	}
+	
+	@FXML
+	private void dragCandidatesNumber() {
+		int value = (int) sliCandidatesNumber.getValue();
+		txtCandidatesNumber.setText(String.valueOf(value));
+		processAndShowFrame();
+	}
+
+	@FXML
+	private void setCandidatesNumber() {
+		String text = txtCandidatesNumber.getText();
+		if (text.matches("\\d*|\\d*\\.\\d")) {
+			sliCandidatesNumber.setValue(Integer.valueOf(text));
+		}
+		txtCandidatesNumber.setText(String.valueOf((int) sliCandidatesNumber.getValue()));
+		processAndShowFrame();
+	}
 
 	@FXML
 	private void dragMinAlpha() {
@@ -1145,53 +1185,53 @@ public class Controller {
 	}
 
 	@FXML
-	private void dragAlphaVariance() {
-		int value = (int) sliAlphaVariance.getValue();
-		txtAlphaVariance.setText(String.valueOf(value));
+	private void dragHorizonVariance() {
+		int value = (int) sliHorizonVariance.getValue();
+		txtHorizonVariance.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
 
 	@FXML
-	private void setAlphaVariance() {
-		String text = txtAlphaVariance.getText();
+	private void setHorizonVariance() {
+		String text = txtHorizonVariance.getText();
 		if (text.matches("\\d*|\\d*\\.\\d")) {
-			sliAlphaVariance.setValue(Integer.valueOf(text));
+			sliHorizonVariance.setValue(Integer.valueOf(text));
 		}
-		txtAlphaVariance.setText(String.valueOf((int) sliAlphaVariance.getValue()));
+		txtHorizonVariance.setText(String.valueOf((int) sliHorizonVariance.getValue()));
 		processAndShowFrame();
 	}
 
 	@FXML
-	private void dragFrameWindow() {
-		int value = (int) sliFrameWindow.getValue();
-		txtFrameWindow.setText(String.valueOf(value));
+	private void dragFramesToShow() {
+		int value = (int) sliFramesToShow.getValue();
+		txtFramesToShow.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
 
 	@FXML
-	private void setFrameWindow() {
-		String text = txtFrameWindow.getText();
+	private void setFramesToShow() {
+		String text = txtFramesToShow.getText();
 		if (text.matches("\\d*|\\d*\\.\\d")) {
-			sliFrameWindow.setValue(Integer.valueOf(text));
+			sliFramesToShow.setValue(Integer.valueOf(text));
 		}
-		txtFrameWindow.setText(String.valueOf((int) sliFrameWindow.getValue()));
+		txtFramesToShow.setText(String.valueOf((int) sliFramesToShow.getValue()));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
-	private void dragNoFrameWindow() {
-		int value = (int) sliNoFrameWindow.getValue();
-		txtNoFrameWindow.setText(String.valueOf(value));
+	private void dragFramesToHide() {
+		int value = (int) sliFramesToHide.getValue();
+		txtFramesToHide.setText(String.valueOf(value));
 		processAndShowFrame();
 	}
-	
+
 	@FXML
-	private void setNoFrameWindow() {
-		String text = txtNoFrameWindow.getText();
-		if (text.matches("\\d*|\\d*\\.\\d")) {								
-			sliFrameWindow.setValue(Integer.valueOf(text));
+	private void setFramesToHide() {
+		String text = txtFramesToHide.getText();
+		if (text.matches("\\d*|\\d*\\.\\d")) {
+			sliFramesToHide.setValue(Integer.valueOf(text));
 		}
-		txtNoFrameWindow.setText(String.valueOf((int) sliFrameWindow.getValue()));	
+		txtFramesToHide.setText(String.valueOf((int) sliFramesToHide.getValue()));
 		processAndShowFrame();
 	}
 }
