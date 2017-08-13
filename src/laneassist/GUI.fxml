@@ -545,7 +545,7 @@
                                                          <children>
                                                             <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Frames to show lane" />
                                                             <TextField fx:id="txtFramesToShow" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setFramesToShow" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
-                                                            <Slider fx:id="sliFramesToShow" majorTickUnit="1.0" max="30.0" min="1.0" minorTickCount="0" onMouseDragged="#dragFramesToShow" onMouseReleased="#dragFramesToShow" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                            <Slider fx:id="sliFramesToShow" majorTickUnit="1.0" min="1.0" minorTickCount="0" onMouseDragged="#dragFramesToShow" onMouseReleased="#dragFramesToShow" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -560,7 +560,7 @@
                                                          <children>
                                                             <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Frames to hide lane" />
                                                             <TextField fx:id="txtFramesToHide" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setFramesToHide" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
-                                                            <Slider fx:id="sliFramesToHide" majorTickUnit="1.0" max="30.0" min="1.0" minorTickCount="0" onMouseDragged="#dragFramesToHide" onMouseReleased="#dragFramesToHide" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                            <Slider fx:id="sliFramesToHide" majorTickUnit="1.0" min="1.0" minorTickCount="0" onMouseDragged="#dragFramesToHide" onMouseReleased="#dragFramesToHide" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />

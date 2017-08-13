@@ -54,24 +54,24 @@ public class Controller {
 	private final Double ROI_HEIGHT = 35.0;
 
 	private final int DEFAULT_BLUR = 3;
-	private final int DEFAULT_CANNY_THRESHOLD = 27;
+	private final int DEFAULT_CANNY_THRESHOLD = 29;
 	private final int DEFAULT_CANNY_RATIO = 3;
 	private final int DEFAULT_APERTURE_SIZE = 3;
 
 	private final int DEFAULT_HOUGH_RHO = 1;
 	private final int DEFAULT_HOUGH_THETA = 180;
-	private final int DEFAULT_HOUGH_THRESHOLD = 30;
+	private final int DEFAULT_HOUGH_THRESHOLD = 26;
 	private final int DEFAULT_MIN_LENGHT = 20;
 	private final int DEFAULT_MAX_GAP = 5;
 
 	private final int DEFAULT_MIN_SLOPE = 10;
-	private final int DEFAULT_MAX_SLOPE = 120;
+	private final int DEFAULT_MAX_SLOPE = 90;
 	private final int DEFAULT_CANDIDATES_NUMBER = 6;
-	private final int DEFAULT_MIN_ALPHA = 80;
+	private final int DEFAULT_MIN_ALPHA = 70;
 	private final int DEFAULT_MAX_ALPHA = 110;
-	private final int DEFAULT_HORIZON_VARIANCE = 20;
-	private final int DEFAULT_FRAMES_TO_SHOW = 30;
-	private final int DEFAULT_FRAMES_TO_HIDE = 30;
+	private final int DEFAULT_HORIZON_VARIANCE = 30;
+	private final int DEFAULT_FRAMES_TO_SHOW = 9;
+	private final int DEFAULT_FRAMES_TO_HIDE = 9;
 
 	@FXML
 	private CheckMenuItem menuItemShowDebug;
@@ -293,7 +293,18 @@ public class Controller {
 			alert.setHeaderText(iae.getMessage());
 			alert.showAndWait();
 		}
+	}
 
+	private void initVideo() {	
+		framesToShowCounter = 0;
+		framesToHideCounter = 0;
+		
+		lastLane = new LinePair(new Line(), new Line());
+		
+		frameCounter = 0;
+		speedMultiplier = 1;
+		rewind = false;
+		
 		forwardFrameGrabber = new Runnable() {
 
 			@Override
@@ -308,27 +319,20 @@ public class Controller {
 
 			@Override
 			public void run() {
-				frameCounter -= 2;
-				capture.set(Videoio.CAP_PROP_POS_FRAMES, frameCounter);
-
-				currentFrame = grabFrame();
-				showFrame(currentFrame);
-				showInfo();
+				if (frameCounter > 1) {
+					frameCounter -= 2;
+					capture.set(Videoio.CAP_PROP_POS_FRAMES, frameCounter);
+	
+					currentFrame = grabFrame();
+					showFrame(currentFrame);
+					showInfo();
+				} else {
+					setStop();
+				}
 			}
 		};
 
 		timer = Executors.newSingleThreadScheduledExecutor();
-	}
-
-	private void initVideo() {	
-		framesToShowCounter = 0;
-		framesToHideCounter = 0;
-		
-		lastLane = new LinePair(new Line(), new Line());
-		
-		frameCounter = 0;
-		speedMultiplier = 1;
-		rewind = false;
 	}
 
 	/**
@@ -415,8 +419,9 @@ public class Controller {
 		}
 	}
 
-	protected void setClosed() {
+	protected void setClosed() {	
 		if (this.timer != null && !this.timer.isShutdown()) {
+			setStop();
 			try {
 				this.timer.shutdown();
 				this.timer.awaitTermination(33, TimeUnit.MILLISECONDS);
@@ -500,8 +505,7 @@ public class Controller {
 					p2 = new Point(val[0], val[1]);
 				}
 
-				if (chkDetectedSegments.isSelected())
-					Imgproc.line(imageROI, p1, p2, new Scalar(255, 0, 255), 2);
+
 
 				Rect clipping = new Rect(Integer.MIN_VALUE / 2, 0, Integer.MAX_VALUE, workingROI.rows());
 				double slope = Math.atan2(p2.y - p1.y, p2.x - p1.x);
@@ -511,13 +515,19 @@ public class Controller {
 						&& slope > Math.toRadians(180 - sliMaxSlope.getValue())
 						&& slope < Math.toRadians(180 - sliMinSlope.getValue())) {
 					
+					
+					if (chkDetectedSegments.isSelected())
+						Imgproc.line(imageROI, p1, p2, new Scalar(255, 0, 255), 2);
+					
 					leftList.add(new Line(p1, p2, slope, clipping));
-
 				} else if (p2.x > lowerCenter.x 
 						&& slope > Math.toRadians(sliMinSlope.getValue())
 						&& slope < Math.toRadians(sliMaxSlope.getValue())) {
+					
+					if (chkDetectedSegments.isSelected())
+						Imgproc.line(imageROI, p1, p2, new Scalar(255, 0, 255), 2);
 
-					rightList.add(new Line(p1, p2, slope, clipping));;
+					rightList.add(new Line(p1, p2, slope, clipping));
 				}
 			}
 
@@ -543,7 +553,7 @@ public class Controller {
 					
 					LinePair pair = new LinePair(leftLine, rightLine);
 					if (pair.getAlpha() > Math.toRadians(sliMinAlpha.getValue()) && pair.getAlpha() < Math.toRadians(sliMaxAlpha.getValue())
-							&& Math.abs(upperCenter.y - pair.getIntersection().y) < sliHorizonVariance.getValue()) {	
+							&& Utils.EuclideanDistance(upperCenter, pair.getIntersection()) < sliHorizonVariance.getValue()) {	
 						pairList.add(pair);
 					}
 				}
@@ -553,11 +563,24 @@ public class Controller {
 			if (!pairList.isEmpty()) {
 				
 				framesToShowCounter++;
+				framesToHideCounter = 0;
 
 				// Ordina la lista in base alla distanza dell'intersezione delle line dal centro superiore (orizzonte)
+//				pairList.sort((LinePair lp1, LinePair lp2) -> {
+//					double d1 = Utils.EuclideanDistance(lp1.getIntersection(), upperCenter);
+//					double d2 = Utils.EuclideanDistance(lp2.getIntersection(), upperCenter);
+//					
+//					if (d1 < d2)
+//						return -1;
+//					else if (d2 > d1)
+//						return 1;
+//					else
+//						return 0;
+//				});
+				
 				pairList.sort((LinePair lp1, LinePair lp2) -> {
-					double d1 = Utils.EuclideanDistance(lp1.getIntersection(), upperCenter);
-					double d2 = Utils.EuclideanDistance(lp2.getIntersection(), upperCenter);
+					double d1 = Math.abs(lastLane.getAlpha() - lp1.getAlpha());
+					double d2 = Math.abs(lastLane.getAlpha() - lp2.getAlpha());
 					
 					if (d1 < d2)
 						return -1;
