@@ -66,9 +66,9 @@ public class Controller {
 
 	private final int DEFAULT_MIN_SLOPE = 10;
 	private final int DEFAULT_MAX_SLOPE = 90;
-	private final int DEFAULT_CANDIDATES_NUMBER = 6;
-	private final int DEFAULT_MIN_ALPHA = 70;
-	private final int DEFAULT_MAX_ALPHA = 110;
+	private final int DEFAULT_CANDIDATES_NUMBER = 7;
+	private final int DEFAULT_MIN_ALPHA = 65;
+	private final int DEFAULT_MAX_ALPHA = 120;
 	private final int DEFAULT_HORIZON_VARIANCE = 30;
 	private final int DEFAULT_FRAMES_TO_SHOW = 9;
 	private final int DEFAULT_FRAMES_TO_HIDE = 9;
@@ -531,7 +531,7 @@ public class Controller {
 				}
 			}
 
-			// Ordina le due liste in base alla distanza dal centro più basso
+			// Ordina le due liste in base alla distanza tra la x più bassa della linea e il centro
 			leftList.sort((Line l1, Line l2) -> (int) l2.getLower().x - (int) l1.getLower().x);
 			rightList.sort((Line l1, Line l2) -> (int) l1.getLower().x - (int) l2.getLower().x);
 
@@ -564,19 +564,6 @@ public class Controller {
 				
 				framesToShowCounter++;
 				framesToHideCounter = 0;
-
-				// Ordina la lista in base alla distanza dell'intersezione delle line dal centro superiore (orizzonte)
-//				pairList.sort((LinePair lp1, LinePair lp2) -> {
-//					double d1 = Utils.EuclideanDistance(lp1.getIntersection(), upperCenter);
-//					double d2 = Utils.EuclideanDistance(lp2.getIntersection(), upperCenter);
-//					
-//					if (d1 < d2)
-//						return -1;
-//					else if (d2 > d1)
-//						return 1;
-//					else
-//						return 0;
-//				});
 				
 				pairList.sort((LinePair lp1, LinePair lp2) -> {
 					double d1 = Math.abs(lastLane.getAlpha() - lp1.getAlpha());
@@ -590,7 +577,7 @@ public class Controller {
 						return 0;
 				});
 				
-				// Prende la coppia con l'intersezione più vicina al centro superiore (orizzonte)
+				// Prende la coppia con la minor variazione di alpha rispetto al frame precedente
 				lastLane = pairList.get(0);
 				
 			} else {				

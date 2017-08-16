@@ -528,7 +528,7 @@
                                                       </GridPane>
                                                       <GridPane>
                                                          <children>
-                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Horizon variance" />
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Horizon radius" />
                                                             <TextField fx:id="txtHorizonVariance" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setHorizonVariance" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                             <Slider fx:id="sliHorizonVariance" majorTickUnit="1.0" min="1.0" minorTickCount="0" onMouseDragged="#dragHorizonVariance" onMouseReleased="#dragHorizonVariance" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
                                                          </children>
@@ -543,7 +543,7 @@
                                                       </GridPane>
                                                       <GridPane>
                                                          <children>
-                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Frames to show lane" />
+                                                            <Label minHeight="25.0" minWidth="150.0" prefHeight="25.0" prefWidth="150.0" text="Frames before showing lane" />
                                                             <TextField fx:id="txtFramesToShow" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setFramesToShow" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                             <Slider fx:id="sliFramesToShow" majorTickUnit="1.0" min="1.0" minorTickCount="0" onMouseDragged="#dragFramesToShow" onMouseReleased="#dragFramesToShow" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
                                                          </children>
@@ -558,7 +558,7 @@
                                                       </GridPane>
                                                       <GridPane>
                                                          <children>
-                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Frames to hide lane" />
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Frames before hiding lane" />
                                                             <TextField fx:id="txtFramesToHide" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setFramesToHide" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                             <Slider fx:id="sliFramesToHide" majorTickUnit="1.0" min="1.0" minorTickCount="0" onMouseDragged="#dragFramesToHide" onMouseReleased="#dragFramesToHide" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
                                                          </children>
