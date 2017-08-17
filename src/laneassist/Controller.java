@@ -304,7 +304,9 @@ public class Controller {
 		frameCounter = 0;
 		speedMultiplier = 1;
 		rewind = false;
-		
+	}
+	
+	private void initScheduler() {
 		forwardFrameGrabber = new Runnable() {
 
 			@Override
@@ -369,6 +371,7 @@ public class Controller {
 				dragROIVerticalPosition();		
 
 				initVideo();
+				initScheduler();
 				setPlayPause();
 
 			} else {
@@ -421,7 +424,10 @@ public class Controller {
 
 	protected void setClosed() {	
 		if (this.timer != null && !this.timer.isShutdown()) {
+			
 			setStop();
+			setGUIDisabled(true);
+			
 			try {
 				this.timer.shutdown();
 				this.timer.awaitTermination(33, TimeUnit.MILLISECONDS);
@@ -431,6 +437,9 @@ public class Controller {
 				alert.setHeaderText(e.getMessage());
 				alert.showAndWait();
 			}
+			
+			
+			
 		}
 
 		if (capture != null && capture.isOpened()) {
