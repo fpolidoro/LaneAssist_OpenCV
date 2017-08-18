@@ -284,8 +284,8 @@ public class Controller {
 		sliFramesToHide.setValue(DEFAULT_FRAMES_TO_HIDE);
 
 		try {
-			playImg = new Image("file:icons/play32x32.png");
-			pauseImg = new Image("file:icons/pause32x32.png");
+			playImg = new Image(getClass().getResourceAsStream("/play32x32.png"));
+			pauseImg = new Image(getClass().getResourceAsStream("/pause32x32.png"));
 			imgPlayPause.setImage(playImg);
 
 		} catch (IllegalArgumentException iae) {

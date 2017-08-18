@@ -120,7 +120,7 @@
                                  <graphic>
                                     <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
-                                          <Image url="@../../icons/rewind24x24.png" />
+                                          <Image url="@/rewind24x24.png" />
                                        </image>
                                     </ImageView>
                                  </graphic>
@@ -132,7 +132,7 @@
                                  <graphic>
                                     <ImageView fitHeight="20.0" fitWidth="20.0" nodeOrientation="RIGHT_TO_LEFT" pickOnBounds="true" preserveRatio="true" rotate="180.0">
                                        <image>
-                                          <Image url="@../../icons/back24x24.png" />
+                                          <Image url="@/back24x24.png" />
                                        </image>
                                     </ImageView>
                                  </graphic>
@@ -144,7 +144,7 @@
                                  <graphic>
                                     <ImageView fx:id="imgPlayPause" fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
-                                          <Image url="@../../icons/play32x32.png" />
+                                          <Image url="@/play32x32.png" />
                                        </image>
                                     </ImageView>
                                  </graphic>
@@ -159,7 +159,7 @@
                                  <graphic>
                                     <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" rotate="180.0">
                                        <image>
-                                          <Image url="@../../icons/back24x24.png" />
+                                          <Image url="@/back24x24.png" />
                                        </image>
                                     </ImageView>
                                  </graphic>
@@ -174,7 +174,7 @@
                                  <graphic>
                                     <ImageView fitHeight="20.0" fitWidth="20.0" nodeOrientation="RIGHT_TO_LEFT" pickOnBounds="true" preserveRatio="true">
                                        <image>
-                                          <Image url="@../../icons/slow24x24.png" />
+                                          <Image url="@/slow24x24.png" />
                                        </image>
                                     </ImageView>
                                  </graphic>
@@ -186,7 +186,7 @@
                                  <graphic>
                                     <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" rotate="180.0">
                                        <image>
-                                          <Image url="@../../icons/rewind24x24.png" />
+                                          <Image url="@/rewind24x24.png" />
                                        </image>
                                     </ImageView>
                                  </graphic>
@@ -201,7 +201,7 @@
                                  <graphic>
                                     <ImageView fx:id="imgPlayPause1" fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
-                                          <Image url="@../../icons/stop32x32.png" />
+                                          <Image url="@/stop32x32.png" />
                                        </image>
                                     </ImageView>
                                  </graphic>
@@ -268,22 +268,22 @@
                   								</StackPane>
                                           <ImageView fx:id="imgMoveROIUpDown" fitHeight="84.0" fitWidth="116.0" pickOnBounds="true" preserveRatio="true" visible="false">
                                              <image>
-                                                <Image url="@../../icons/moveUpDown.png" />
+                                                <Image url="@/moveUpDown.png" />
                                              </image>
                                           </ImageView>
                                           <ImageView fx:id="imgMoveROILeftRight" fitHeight="84.0" fitWidth="116.0" pickOnBounds="true" preserveRatio="true" visible="false">
                                              <image>
-                                                <Image url="@../../icons/moveROILeftRight.png" />
+                                                <Image url="@/moveROILeftRight.png" />
                                              </image>
                                           </ImageView>
                                           <ImageView fx:id="imgResizeROIVertically" fitHeight="84.0" pickOnBounds="true" preserveRatio="true" visible="false">
                                              <image>
-                                                <Image url="@../../icons/resizeROIVertically.png" />
+                                                <Image url="@/resizeROIVertically.png" />
                                              </image>
                                           </ImageView>
                                           <ImageView fx:id="imgResizeROIHorizontally" fitWidth="130.0" pickOnBounds="true" preserveRatio="true" visible="false">
                                              <image>
-                                                <Image url="@../../icons/resizeROIHorizontally.png" />
+                                                <Image url="@/resizeROIHorizontally.png" />
                                              </image>
                                           </ImageView>
                                        </children>

@@ -15,6 +15,7 @@ import javafx.stage.WindowEvent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 
 
@@ -39,6 +40,8 @@ public class Main extends Application {
 			primaryStage.setTitle("Lane Assist");
 			primaryStage.setScene(scene);
 			primaryStage.setResizable(false);
+			
+			primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/icon.png")));
 			
 			// show the GUI
 			primaryStage.show();
