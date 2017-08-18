@@ -242,6 +242,7 @@ public class Controller {
 		roi = new Rect();
 		setGUIDisabled(true);
 
+		
 		// Debug
 		debugPane = mainSplitPane.getItems().get(1);
 
@@ -362,18 +363,21 @@ public class Controller {
 				frameWidth = capture.get(Videoio.CAP_PROP_FRAME_WIDTH);
 				frameHeight = capture.get(Videoio.CAP_PROP_FRAME_HEIGHT);
 
-				setGUIDisabled(false);
+				setGUIDisabled(false);	
+
+				currentFrame = null;
+				
+				initVideo();
+				initScheduler();
+				setPlayPause();
+				
 				computeROIDimension();
 				computePointsForROI();
 				dragROIHeight();
 				dragROIWidth();
 				dragROIHorizontalPosition();
-				dragROIVerticalPosition();		
-
-				initVideo();
-				initScheduler();
-				setPlayPause();
-
+				dragROIVerticalPosition();	
+				
 			} else {
 				Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("Error");

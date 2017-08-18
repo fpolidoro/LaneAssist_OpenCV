@@ -30,11 +30,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.collections.FXCollections?>
 
-<<<<<<< HEAD
 <BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="laneassist.Controller">
-=======
-<BorderPane minHeight="650.0" minWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="laneassist.Controller">
->>>>>>> origin/master
 	<top>
 		<MenuBar BorderPane.alignment="CENTER">
 			<menus>
@@ -52,20 +48,18 @@
 						</MenuItem>
 					</items>
 				</Menu>
-				<Menu mnemonicParsing="false" text="Help">
+				<Menu mnemonicParsing="false" text="Settings">
 					<items>
-                  <CheckMenuItem fx:id="menuItemShowDebug" mnemonicParsing="false" onAction="#checkMenuItemDebug" selected="true" text="Show debug toolbar">
+                  <CheckMenuItem fx:id="menuItemShowDebug" mnemonicParsing="false" onAction="#checkMenuItemDebug" selected="true" text="Show settings panel">
                      <accelerator>
                         <KeyCodeCombination alt="DOWN" code="D" control="UP" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </CheckMenuItem>
-						<MenuItem mnemonicParsing="false" text="About" />
 					</items>
 				</Menu>
 			</menus>
 		</MenuBar>
 	</top>
-<<<<<<< HEAD
    <center>
       <SplitPane fx:id="mainSplitPane" dividerPositions="0.5" BorderPane.alignment="CENTER">
          <items>
@@ -73,7 +67,7 @@
               <items>
                 <AnchorPane maxHeight="360.0" maxWidth="640.0" minHeight="360.0" minWidth="640.0" prefHeight="360.0" prefWidth="640.0" SplitPane.resizableWithParent="false">
                      <children>
-            				<ImageView fx:id="currentFrame" fitHeight="360.0" fitWidth="640.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            				<ImageView fx:id="currentImage" fitHeight="360.0" fitWidth="640.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                         <Label fx:id="lblSpeed" textAlignment="RIGHT" textFill="WHITE" visible="false" AnchorPane.rightAnchor="42.0" AnchorPane.topAnchor="32.0">
                            <font>
                               <Font name="Tahoma Bold" size="48.0" />
@@ -116,16 +110,13 @@
                                     <Label fx:id="lblFrame" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                  </children>
                                  <HBox.margin>
-                                    <Insets bottom="10.0" left="20.0" right="30.0" top="10.0" />
+                                    <Insets bottom="10.0" left="20.0" top="10.0" />
                                  </HBox.margin>
                                  <padding>
                                     <Insets right="20.0" />
                                  </padding>
                               </GridPane>
                               <Button fx:id="btnRewind" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#setRewind" prefHeight="40.0" prefWidth="40.0" style="-fx-background-radius: 5em;">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
                                  <graphic>
                                     <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
@@ -133,18 +124,21 @@
                                        </image>
                                     </ImageView>
                                  </graphic>
+                                 <tooltip>
+                                    <Tooltip text="Rewind" />
+                                 </tooltip>
                               </Button>
-                              <Button fx:id="btnStop" maxHeight="60.0" maxWidth="60.0" minHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#setStop" prefHeight="60.0" prefWidth="60.0" style="-fx-background-radius: 5em;">
+                              <Button fx:id="btnPreviousFrame" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#setPreviousFrame" prefHeight="40.0" prefWidth="40.0" style="-fx-background-radius: 5em;">
                                  <graphic>
-                                    <ImageView fx:id="imgPlayPause1" fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                    <ImageView fitHeight="20.0" fitWidth="20.0" nodeOrientation="RIGHT_TO_LEFT" pickOnBounds="true" preserveRatio="true" rotate="180.0">
                                        <image>
-                                          <Image url="@../../icons/stop32x32.png" />
+                                          <Image url="@../../icons/back24x24.png" />
                                        </image>
                                     </ImageView>
                                  </graphic>
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
+                                 <tooltip>
+                                    <Tooltip text="Previous frame" />
+                                 </tooltip>
                               </Button>
                               <Button fx:id="btnPlayPause" maxHeight="60.0" maxWidth="60.0" minHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#setPlayPause" prefHeight="60.0" prefWidth="60.0" style="-fx-background-radius: 5em;">
                                  <graphic>
@@ -154,6 +148,9 @@
                                        </image>
                                     </ImageView>
                                  </graphic>
+                                 <tooltip>
+                                    <Tooltip text="Play" />
+                                 </tooltip>
                               </Button>
                               <Button fx:id="btnNextFrame" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#setNextFrame" prefHeight="40.0" prefWidth="40.0" style="-fx-background-radius: 5em;">
                                  <HBox.margin>
@@ -166,6 +163,24 @@
                                        </image>
                                     </ImageView>
                                  </graphic>
+                                 <tooltip>
+                                    <Tooltip text="Next frame" />
+                                 </tooltip>
+                              </Button>
+                              <Button fx:id="btnSlow" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#setSlow" prefHeight="40.0" prefWidth="40.0" style="-fx-background-radius: 5em;">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                                 <graphic>
+                                    <ImageView fitHeight="20.0" fitWidth="20.0" nodeOrientation="RIGHT_TO_LEFT" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../../icons/slow24x24.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                                 <tooltip>
+                                    <Tooltip text="Slow down" />
+                                 </tooltip>
                               </Button>
                               <Button fx:id="btnFastForward" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#setFastForward" prefHeight="40.0" prefWidth="40.0" style="-fx-background-radius: 5em;">
                                  <graphic>
@@ -178,6 +193,24 @@
                                  <HBox.margin>
                                     <Insets />
                                  </HBox.margin>
+                                 <tooltip>
+                                    <Tooltip text="Fast forward" />
+                                 </tooltip>
+                              </Button>
+                              <Button fx:id="btnStop" maxHeight="60.0" maxWidth="60.0" minHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#setStop" prefHeight="60.0" prefWidth="60.0" style="-fx-background-radius: 5em;">
+                                 <graphic>
+                                    <ImageView fx:id="imgPlayPause1" fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../../icons/stop32x32.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                                 <HBox.margin>
+                                    <Insets left="20.0" />
+                                 </HBox.margin>
+                                 <tooltip>
+                                    <Tooltip text="Stop" />
+                                 </tooltip>
                               </Button>
                            </children>
                         </HBox>
@@ -317,7 +350,7 @@
                                                       <GridPane>
                                                          <children>
                                                             <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Aperture size" />
-                                                            <ComboBox fx:id="cmbApertureSize" visibleRowCount="3" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <ComboBox fx:id="cmbApertureSize" onAction="#processAndShowFrame" visibleRowCount="3" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -416,7 +449,130 @@
                                           </TitledPane>
                                           <TitledPane expanded="false" text="Lane constraints">
                                              <content>
-                                                <VBox />
+                                                <VBox>
+                                                   <children>
+                                                      <GridPane>
+                                                         <children>
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Min slope" />
+                                                            <TextField fx:id="txtMinSlope" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setMinSlope" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Slider fx:id="sliMinSlope" majorTickUnit="1.0" max="180.0" min="1.0" minorTickCount="0" onMouseDragged="#dragMinSlope" onMouseReleased="#dragMinSlope" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                         </children>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                            <ColumnConstraints fillWidth="false" minWidth="10.0" prefWidth="100.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                      </GridPane>
+                                                      <GridPane>
+                                                         <children>
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Max slope" />
+                                                            <TextField fx:id="txtMaxSlope" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setMaxSlope" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Slider fx:id="sliMaxSlope" majorTickUnit="1.0" max="180.0" min="1.0" minorTickCount="0" onMouseDragged="#dragMaxSlope" onMouseReleased="#dragMaxSlope" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                         </children>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                            <ColumnConstraints fillWidth="false" minWidth="10.0" prefWidth="100.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                      </GridPane>
+                                                      <GridPane>
+                                                         <children>
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Number of candidates" />
+                                                            <TextField fx:id="txtCandidatesNumber" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setCandidatesNumber" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Slider fx:id="sliCandidatesNumber" majorTickUnit="1.0" min="1.0" minorTickCount="0" onMouseDragged="#dragCandidatesNumber" onMouseReleased="#dragCandidatesNumber" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                         </children>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                            <ColumnConstraints fillWidth="false" minWidth="10.0" prefWidth="100.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                      </GridPane>
+                                                      <GridPane>
+                                                         <children>
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Min alpha" />
+                                                            <TextField fx:id="txtMinAlpha" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setMinAlpha" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Slider fx:id="sliMinAlpha" majorTickUnit="1.0" max="180.0" min="1.0" minorTickCount="0" onMouseDragged="#dragMinAlpha" onMouseReleased="#dragMinAlpha" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                         </children>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                            <ColumnConstraints fillWidth="false" minWidth="10.0" prefWidth="100.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                      </GridPane>
+                                                      <GridPane>
+                                                         <children>
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Max alpha" />
+                                                            <TextField fx:id="txtMaxAlpha" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setMaxAlpha" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Slider fx:id="sliMaxAlpha" majorTickUnit="1.0" max="180.0" min="1.0" minorTickCount="0" onMouseDragged="#dragMaxAlpha" onMouseReleased="#dragMaxAlpha" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                         </children>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                            <ColumnConstraints fillWidth="false" minWidth="10.0" prefWidth="100.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                      </GridPane>
+                                                      <GridPane>
+                                                         <children>
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Horizon radius" />
+                                                            <TextField fx:id="txtHorizonVariance" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setHorizonVariance" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Slider fx:id="sliHorizonVariance" majorTickUnit="1.0" min="1.0" minorTickCount="0" onMouseDragged="#dragHorizonVariance" onMouseReleased="#dragHorizonVariance" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                         </children>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                            <ColumnConstraints fillWidth="false" minWidth="10.0" prefWidth="100.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                      </GridPane>
+                                                      <GridPane>
+                                                         <children>
+                                                            <Label minHeight="25.0" minWidth="150.0" prefHeight="25.0" prefWidth="150.0" text="Frames before showing lane" />
+                                                            <TextField fx:id="txtFramesToShow" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setFramesToShow" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Slider fx:id="sliFramesToShow" majorTickUnit="1.0" min="1.0" minorTickCount="0" onMouseDragged="#dragFramesToShow" onMouseReleased="#dragFramesToShow" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                         </children>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                            <ColumnConstraints fillWidth="false" minWidth="10.0" prefWidth="100.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                      </GridPane>
+                                                      <GridPane>
+                                                         <children>
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Frames before hiding lane" />
+                                                            <TextField fx:id="txtFramesToHide" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="40.0" onAction="#setFramesToHide" prefHeight="25.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Slider fx:id="sliFramesToHide" majorTickUnit="1.0" min="1.0" minorTickCount="0" onMouseDragged="#dragFramesToHide" onMouseReleased="#dragFramesToHide" snapToTicks="true" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                         </children>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                            <ColumnConstraints fillWidth="false" minWidth="10.0" prefWidth="100.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                      </GridPane>
+                                                   </children>
+                                                </VBox>
                                              </content>
                                           </TitledPane>
                                           <TitledPane expanded="false" text="Display">
@@ -426,7 +582,7 @@
                                                       <GridPane>
                                                          <children>
                                                             <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Borders" />
-                                                            <CheckBox fx:id="chkBorders" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <CheckBox fx:id="chkBorders" mnemonicParsing="false" onAction="#processAndShowFrame" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -439,7 +595,7 @@
                                                       <GridPane>
                                                          <children>
                                                             <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Detected segments" />
-                                                            <CheckBox fx:id="chkDetectedSegments" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <CheckBox fx:id="chkDetectedSegments" mnemonicParsing="false" onAction="#processAndShowFrame" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -451,8 +607,8 @@
                                                       </GridPane>
                                                       <GridPane>
                                                          <children>
-                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Chosen segments" />
-                                                            <CheckBox fx:id="chkChosenSegments" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Candidate stripes" />
+                                                            <CheckBox fx:id="chkCandidateStripes" mnemonicParsing="false" onAction="#processAndShowFrame" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -464,8 +620,8 @@
                                                       </GridPane>
                                                       <GridPane>
                                                          <children>
-                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Stripes" />
-                                                            <CheckBox fx:id="chkStripes" mnemonicParsing="false" selected="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Final stripes" />
+                                                            <CheckBox fx:id="chkFinalStripes" mnemonicParsing="false" onAction="#processAndShowFrame" selected="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -478,7 +634,7 @@
                                                       <GridPane>
                                                          <children>
                                                             <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Lane" />
-                                                            <CheckBox fx:id="chkLane" mnemonicParsing="false" selected="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <CheckBox fx:id="chkLane" mnemonicParsing="false" onAction="#processAndShowFrame" selected="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -490,8 +646,8 @@
                                                       </GridPane>
                                                       <GridPane>
                                                          <children>
-                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="Center" />
-                                                            <CheckBox fx:id="chkCenter" mnemonicParsing="false" selected="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                                                            <Label minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" text="ROI" />
+                                                            <CheckBox fx:id="chkROI" mnemonicParsing="false" onAction="#processAndShowFrame" selected="true" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
                                                          </children>
                                                          <columnConstraints>
                                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -518,213 +674,4 @@
          </items>
       </SplitPane>
    </center>
-=======
-	<right>
-		<GridPane fx:id="gridPane" minWidth="200.0" style="-fx-border-style: hidden hidden hidden solid; -fx-border-color: lightgrey;" BorderPane.alignment="CENTER">
-			<columnConstraints>
-				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-			</columnConstraints>
-			<rowConstraints>
-				<RowConstraints maxHeight="-Infinity" minHeight="170.0" prefHeight="170.0" valignment="TOP" vgrow="SOMETIMES" />
-				<RowConstraints maxHeight="-Infinity" minHeight="100.0" prefHeight="100.0" vgrow="SOMETIMES" />
-				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-			</rowConstraints>
-			<children>
-				<VBox prefHeight="200.0" prefWidth="100.0">
-					<children>
-						<BorderPane fx:id="borderPaneROI" style="-fx-border-style: hidden hidden solid hidden; -fx-border-color: lightgrey;">
-							<top>
-								<Label text="Region of Interest" BorderPane.alignment="CENTER" />
-							</top>
-							<bottom>
-								<VBox minWidth="130.0" BorderPane.alignment="CENTER">
-									<children>
-										<Slider fx:id="sliROIWidth" maxWidth="155.0" minWidth="155.0" onMouseDragged="#dragROIWidth" onMouseEntered="#mouseEnteredResizeROIWidth" onMouseExited="#mouseExitedResizeROIWidth" />
-										<Slider fx:id="sliROIHorizontalPosition" maxWidth="155.0" minWidth="155.0" onMouseDragged="#dragROIHorizontalPosition" onMouseEntered="#mouseEnteredMoveROILeftRight" onMouseExited="#mouseExitedMoveROILeftRight" value="50.0" />
-									</children>
-									<padding>
-										<Insets top="5.0" />
-									</padding>
-									<BorderPane.margin>
-										<Insets />
-									</BorderPane.margin>
-								</VBox>
-							</bottom>
-							<right>
-								<HBox minWidth="32.0" BorderPane.alignment="CENTER_RIGHT">
-									<children>
-										<Slider fx:id="sliROIHeight" onMouseDragged="#dragROIHeight" onMouseEntered="#mouseEnteredResizeROIHeight" onMouseExited="#mouseExitedResizeROIHeight" orientation="VERTICAL" />
-										<Slider fx:id="sliROIVerticalPosition" minHeight="73.0" onMouseDragged="#dragROIVerticalPosition" onMouseEntered="#mouseEnteredMoveROIUpDown" onMouseExited="#mouseExitedMoveROIUpDown" orientation="VERTICAL">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin></Slider>
-									</children>
-									<BorderPane.margin>
-										<Insets />
-									</BorderPane.margin>
-								</HBox>
-							</right>
-                     <center>
-                        <StackPane maxHeight="116.0" maxWidth="152.0" minHeight="116.0" minWidth="152.0" prefHeight="116.0" prefWidth="152.0" BorderPane.alignment="CENTER">
-                           <children>
-      								<StackPane fx:id="stackpROI" maxHeight="-Infinity" maxWidth="150.0" minHeight="84.0" minWidth="150.0" prefHeight="84.0" style="-fx-border-style: solid; -fx-border-color: grey;">
-      									<children>
-      										<Rectangle fx:id="rectROI" arcHeight="5.0" arcWidth="5.0" fill="#bcdeff" height="35.0" smooth="false" width="120.0" StackPane.alignment="BOTTOM_LEFT" />
-      									</children>
-      								</StackPane>
-                              <ImageView fx:id="imgMoveROIUpDown" fitHeight="84.0" fitWidth="116.0" pickOnBounds="true" preserveRatio="true" visible="false">
-                                 <image>
-                                    <Image url="@../../icons/moveUpDown.png" />
-                                 </image>
-                              </ImageView>
-                              <ImageView fx:id="imgMoveROILeftRight" fitHeight="84.0" fitWidth="116.0" pickOnBounds="true" preserveRatio="true" visible="false">
-                                 <image>
-                                    <Image url="@../../icons/moveROILeftRight.png" />
-                                 </image>
-                              </ImageView>
-                              <ImageView fx:id="imgResizeROIVertically" fitHeight="84.0" pickOnBounds="true" preserveRatio="true" visible="false">
-                                 <image>
-                                    <Image url="@../../icons/resizeROIVertically.png" />
-                                 </image>
-                              </ImageView>
-                              <ImageView fx:id="imgResizeROIHorizontally" fitWidth="130.0" pickOnBounds="true" preserveRatio="true" visible="false">
-                                 <image>
-                                    <Image url="@../../icons/resizeROIHorizontally.png" />
-                                 </image>
-                              </ImageView>
-                           </children>
-                        </StackPane>
-                     </center>
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                     <padding>
-                        <Insets bottom="5.0" />
-                     </padding>
-						</BorderPane>
-					</children>
-               <GridPane.margin>
-                  <Insets />
-               </GridPane.margin>
-				</VBox>
-				<BorderPane fx:id="borderPaneSpeed" GridPane.rowIndex="1">
-					<top>
-						<Label text="Speed" BorderPane.alignment="CENTER" />
-					</top>
-					<center>
-						<Slider fx:id="sliVideoSpeed" blockIncrement="0.5" majorTickUnit="0.25" max="2.0" min="0.25" onMouseDragged="#dragVideoSpeed" showTickLabels="true" showTickMarks="true" value="1.0" BorderPane.alignment="CENTER" />
-					</center>
-               <bottom>
-                  <HBox alignment="CENTER" BorderPane.alignment="CENTER">
-                     <children>
-                        <Button fx:id="btnRewind" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" onMouseClicked="#clickBtnRewind" style="-fx-background-radius: 5em;">
-                           <HBox.margin>
-                              <Insets right="5.0" />
-                           </HBox.margin>
-                           <graphic>
-                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../../icons/rewind24x24.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic>
-                        </Button>
-                        <Button fx:id="btnPlayPause" accessibleRole="BUTTON" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onMouseClicked="#clickBtnPlayPause" style="-fx-background-radius: 5em;">
-                           <graphic>
-                              <ImageView fx:id="imgPlayPause" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                              </ImageView>
-                           </graphic></Button>
-                        <Button fx:id="btnForward" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" onMouseClicked="#clickBtnForward" style="-fx-background-radius: 5em;">
-                           <HBox.margin>
-                              <Insets left="5.0" />
-                           </HBox.margin>
-                           <graphic>
-                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" rotate="180.0">
-                                 <image>
-                                    <Image url="@../../icons/rewind24x24.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic>
-                        </Button>
-                     </children>
-                  </HBox>
-               </bottom>
-               <GridPane.margin>
-                  <Insets top="5.0" />
-               </GridPane.margin>
-				</BorderPane>
-			</children>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
-         <padding>
-            <Insets left="5.0" right="5.0" />
-         </padding>
-		</GridPane>
-	</right>
-	<center>
-		<VBox minHeight="400.0" BorderPane.alignment="CENTER">
-			<children>
-            <Pane minHeight="20.0" style="-fx-border-style: hidden hidden solid hidden; -fx-border-color: lightgrey;">
-               <children>
-      				<Label fx:id="lblVideoTitle" text="" />
-               </children>
-            </Pane>
-            <Pane fx:id="paneFrame" style="-fx-background-color: pink;">
-               <children>
-      				<ImageView fx:id="currentFrame" fitHeight="400.0" fitWidth="600.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" />
-               </children>
-               <padding>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </padding>
-            </Pane>
-			</children>
-		</VBox>
-	</center>
-   <bottom>
-      <GridPane fx:id="gridPaneDebug" prefHeight="200.0" style="-fx-border-style: solid hidden hidden hidden; -fx-border-color: lightgrey;" BorderPane.alignment="CENTER">
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-         <children>
-            <VBox fx:id="vBoxCanny" prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
-               <children>
-                  <Label text="Blur" />
-                  <Slider />
-                  <HBox prefHeight="100.0" prefWidth="200.0">
-                     <children>
-                        <Label contentDisplay="CENTER" minWidth="33.0" text="Canny" textAlignment="CENTER" />
-                        <Label fx:id="lblCannyThreshold" alignment="CENTER_RIGHT" minWidth="37.0" text="0">
-                           <HBox.margin>
-                              <Insets left="120.0" />
-                           </HBox.margin>
-                        </Label>
-                     </children>
-                  </HBox>
-					<Slider fx:id="sliCannyThreshold" onMouseDragged="#dragCannyThreshold" value="27.0" />
-               </children>
-            </VBox>
-            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" style="-fx-border-style: hidden solid hidden solid; -fx-border-color: lightgrey;" GridPane.columnIndex="1" GridPane.rowIndex="1">
-               <children>
-                  <Label text="Hough Lines" />
-                  <Label text="Alpha" />
-                  <Slider />
-                  <Label text="Rho" />
-                  <Slider />
-               </children>
-               <padding>
-                  <Insets left="5.0" right="5.0" />
-               </padding>
-            </VBox>
-            <Label text="Debug" />
-         </children>
-      </GridPane>
-   </bottom>
->>>>>>> origin/master
 </BorderPane>
