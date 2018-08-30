@@ -17,7 +17,7 @@ Due to the lack of space in the panel, the action linked to each slider is not w
 :------------------------------------: | :-------------------------------------: | :-------------------------------------: | :------------------------------------:
 Increase/decrease ROI height           | Move ROI up/down                        | Increase/decrease ROI width             | Move ROI left/right
 
-The other categories contain all the parameters that help the tuning of the different steps of the algorithm, so that the latter can be adapted to different types of video.
+The other categories contain all the parameters that toggle the visibility of the edges and lines that are seen as candidates for lane detection and help the tuning of the different steps of the algorithm, so that the latter can be adapted to different types of video.
 
 ## Algorithm
 The algorithm for the lane detection works only on the selected region of interest, which must be carefully positioned and resized.
