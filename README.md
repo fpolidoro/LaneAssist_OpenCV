@@ -48,4 +48,4 @@ The lane is drawn on the video if and only if it remains stable for a certain nu
 #### Lane Crossing ####
 Once the lane has been detected, it is highlighted with a color that changes from green to red based on the distance of each line of the pair from the central line of the ROI.
 
-<img src="tesina/cross_1.png" width="180"> <img src="tesina/cross_2.png" width="180"> <img src="tesina/cross_3.png" width="180"><img src="tesina/cross_4.png" width="180">
+<img src="tesina/cross_1.png" width="180"> <img src="tesina/cross_2.png" width="180"> <img src="tesina/cross_3.png" width="180"> <img src="tesina/cross_4.png" width="180">
