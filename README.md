@@ -8,9 +8,10 @@ In fact, the way the algorithm operates depends on many parameters, such as the 
 ![Application overview](readme/application.PNG)
 
 ## User Interface
-The rightmost part of the interface shows all the tunable parameters, divided by category.
+The user interface is made of three macro-areas: the one where the video is played, the one containing the video controls (play, pause, stop, etc) and the panel containing the parameters for tuning the functioning of the lane detection algorithm.
 
-The most important one is the Region of Interest (ROI) on which the algorithm is going to work. The topmost part of the panel represents the size and position of the region of interest as a blue rectangle inside an outlined box. While the box adapts automatically its width and height to the aspect ratio of the loaded video, the region of interest can be moved and resized with the four sliders surrounding the rectangles.  
+The most important parameter to be tuned when a new video is loaded is "Region of Interest" (ROI), which represents the area of the video the algorithm is going to work on.  
+The topmost part of the panel represents the size and position of the region of interest as a blue rectangle inside an outlined box. While the box adapts automatically its width and height to the aspect ratio of the loaded video, the region of interest can be moved and resized with the four sliders surrounding the rectangles.  
 Due to the lack of space in the panel, the action linked to each slider is not written but is directly shown on the box when the mouse is moved over the slider, as shown in the pictures below.  
 
 ![Application overview](tesina/2.png) | ![Application overview](tesina/3.png) | ![Application overview](tesina/4.png) | ![Application overview](tesina/5.png)  
